@@ -7,212 +7,259 @@
 <meta name="description" content="Cole um link ou mensagem suspeita e veja se é golpe.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #eef2f6;
+  --sea: #0c4a5c;
+  --sea-deep: #083544;
+  --foam: #bfe7ec;
+  --bg: #f2f5f7;
   --surface: #ffffff;
-  --ink: #172033;
-  --muted: #5a6478;
-  --line: #d3dae4;
-  --line-strong: #172033;
-  --accent: #0e6e78;
-  --ok: #1f7a4d;
-  --ok-bg: #e4f3ea;
-  --warn: #a8650f;
-  --warn-bg: #fbf0dc;
-  --bad: #b42318;
-  --bad-bg: #fbe5e2;
-  --bubble: #dfe6ee;
+  --ink: #15202b;
+  --muted: #5b6876;
+  --line: #dde3e9;
+  --go: #0c4a5c;
+  --ok: #15803d;
+  --ok-soft: #dcfce7;
+  --warn: #c2410c;
+  --warn-amber: #f59e0b;
+  --warn-soft: #ffedd5;
+  --bad: #dc2626;
+  --bad-soft: #fee2e2;
+  --idle: #d6dde4;
+  --hero: var(--sea);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121826;
-    --surface: #1b2334;
-    --ink: #e8edf5;
-    --muted: #9aa5b8;
-    --line: #2d374b;
-    --line-strong: #e8edf5;
-    --accent: #4fb8c2;
-    --ok: #5cc58f;
-    --ok-bg: #16332a;
-    --warn: #e5a54b;
-    --warn-bg: #3a2c14;
-    --bad: #f0786b;
-    --bad-bg: #3d1d1b;
-    --bubble: #253047;
+    --bg: #0f1820;
+    --surface: #17232d;
+    --ink: #e6edf3;
+    --muted: #93a3b3;
+    --line: #26343f;
+    --go: #3fb6c6;
+    --ok: #4ade80;
+    --ok-soft: #12301f;
+    --warn: #fb923c;
+    --warn-soft: #3a2412;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --idle: #2a3844;
   }
 }
+body[data-tom="ok"] { --hero: #14532d; }
+body[data-tom="warn"] { --hero: #9a3412; }
+body[data-tom="bad"] { --hero: #991b1b; }
+
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
   font: 17px/1.55 "Atkinson Hyperlegible", system-ui, sans-serif;
 }
-main { max-width: 720px; margin: 0 auto; padding: 56px 16px 40px; }
-h1, h2, .verdict, .brand {
-  font-family: "Bricolage Grotesque", system-ui, sans-serif;
-  letter-spacing: -0.02em;
-}
-.brand {
-  display: flex; align-items: center; gap: 10px;
-  font-weight: 700; font-size: 20px; margin-bottom: 48px;
-}
-.brand svg { width: 26px; height: 26px; color: var(--accent); }
-h1 {
-  font-size: clamp(38px, 7vw, 60px);
-  line-height: 1.02; font-weight: 800; margin: 0 0 14px;
-}
-.lead { color: var(--muted); font-size: 19px; margin: 0 0 32px; max-width: 34em; }
+h1, h2, .verdict, .brand { font-family: "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -0.02em; }
 
-.tabs { display: flex; gap: 4px; margin-bottom: -2px; position: relative; }
-.tabs button {
-  font: 700 15px "Atkinson Hyperlegible", sans-serif;
-  color: var(--muted); background: transparent;
-  border: 2px solid transparent; border-bottom: none;
-  border-radius: 10px 10px 0 0; padding: 10px 18px; cursor: pointer;
+.hero {
+  background: var(--hero);
+  color: #fff;
+  padding: 28px 16px 120px;
+  transition: background-color .5s ease;
 }
-.tabs button[aria-selected="true"] {
-  color: var(--ink); background: var(--surface); border-color: var(--line-strong);
+.wrap { max-width: 728px; margin: 0 auto; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 21px; }
+.brand svg { width: 28px; height: 28px; color: var(--foam); }
+h1 { font-size: clamp(36px, 6.5vw, 58px); line-height: 1.04; font-weight: 800; margin: 56px 0 12px; }
+.lead { font-size: 19px; color: rgba(255,255,255,.82); margin: 0; max-width: 32em; }
+
+.panel {
+  max-width: 760px; margin: -88px auto 0; padding: 0 16px;
+  position: relative;
 }
-form {
+.box {
   background: var(--surface);
-  border: 2px solid var(--line-strong);
-  border-radius: 0 14px 14px 14px;
-  padding: 18px;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px -18px rgba(8,53,68,.45);
+  overflow: hidden;
 }
-textarea, input[type=text] {
-  width: 100%; font: inherit; color: var(--ink);
-  background: transparent; border: none; resize: vertical; outline: none;
-}
-input[type=text] { font-size: 19px; padding: 6px 2px; }
-textarea { min-height: 150px; font-size: 16px; }
-.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
-.hint { color: var(--muted); font-size: 14px; }
-.go {
+.tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.tabs button {
   font: 700 16px "Atkinson Hyperlegible", sans-serif;
-  background: var(--ink); color: var(--surface);
-  border: none; border-radius: 10px; padding: 12px 22px; cursor: pointer;
+  background: none; border: none; color: var(--muted);
+  padding: 16px 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
 }
-.go:disabled { opacity: .55; cursor: wait; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-textarea:focus-visible, input[type=text]:focus-visible { outline: none; }
-form:focus-within { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent); }
-.tabs button:focus-visible { outline-offset: -3px; }
+.tabs button svg { width: 19px; height: 19px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--go); }
+form { padding: 18px 20px 20px; }
+input[type=text], textarea {
+  width: 100%; font: inherit; color: var(--ink);
+  background: var(--bg); border: 2px solid transparent; border-radius: 12px;
+  padding: 14px 16px; outline: none; transition: border-color .15s;
+}
+input[type=text] { font-size: 18px; }
+textarea { min-height: 140px; resize: vertical; font-size: 16px; }
+input[type=text]:focus, textarea:focus { border-color: var(--go); background: var(--surface); }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+.hint { color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.hint svg { width: 16px; height: 16px; }
+.go {
+  font: 700 17px "Atkinson Hyperlegible", sans-serif;
+  background: var(--go); color: #fff; border: none; border-radius: 12px;
+  padding: 13px 26px; cursor: pointer;
+}
+.go:hover { filter: brightness(1.1); }
+.go:disabled { opacity: .6; cursor: wait; }
+:focus-visible { outline: 3px solid var(--warn-amber); outline-offset: 2px; }
 
-#result { margin-top: 28px; }
-.card {
-  border-radius: 14px; padding: 24px 22px;
-  background: var(--tone-bg); border-left: 8px solid var(--tone);
+#result:empty { display: none; }
+#result { border-top: 1px solid var(--line); padding: 24px 20px 26px; }
+.head { display: flex; gap: 16px; align-items: center; }
+.icon {
+  flex: none; width: 56px; height: 56px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; background: var(--tone);
 }
-.card.ok { --tone: var(--ok); --tone-bg: var(--ok-bg); }
-.card.warn { --tone: var(--warn); --tone-bg: var(--warn-bg); }
-.card.bad { --tone: var(--bad); --tone-bg: var(--bad-bg); }
-.verdict { font-size: clamp(30px, 6vw, 42px); font-weight: 800; color: var(--tone); margin: 0; line-height: 1.05; }
-.meter { height: 10px; border-radius: 99px; background: color-mix(in srgb, var(--tone) 18%, transparent); margin: 16px 0 6px; overflow: hidden; }
-.meter span { display: block; height: 100%; background: var(--tone); border-radius: inherit; width: 0; transition: width .6s cubic-bezier(.2,.8,.2,1); }
-.score { font-size: 14px; color: var(--muted); }
-.dest { margin: 20px 0 4px; font-size: 15px; color: var(--muted); }
-.url {
-  font-size: 17px; word-break: break-all; padding: 10px 12px;
-  background: var(--surface); border-radius: 8px; color: var(--muted);
-}
-.url mark { background: none; color: var(--tone); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
-.card h2 { font-size: 19px; margin: 22px 0 8px; }
-.card ul { margin: 0; padding-left: 20px; }
-.card li { margin: 4px 0; }
-.err { color: var(--bad); margin-top: 16px; }
+.icon svg { width: 30px; height: 30px; }
+.ok { --tone: var(--ok); --soft: var(--ok-soft); }
+.warn { --tone: var(--warn); --soft: var(--warn-soft); }
+.bad { --tone: var(--bad); --soft: var(--bad-soft); }
+.verdict { font-size: clamp(28px, 5vw, 38px); font-weight: 800; color: var(--tone); margin: 0; line-height: 1.05; }
+.advice { margin: 4px 0 0; color: var(--ink); }
 
-section.examples { margin-top: 56px; }
-section h2 { font-size: 24px; margin: 0 0 6px; }
-section p { color: var(--muted); margin: 0 0 18px; }
-.bubbles { display: grid; gap: 12px; }
+.scale { margin: 22px 0 4px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.scale div { height: 10px; border-radius: 99px; background: var(--idle); }
+.scale .on.s-ok { background: var(--ok); }
+.scale .on.s-warn { background: var(--warn-amber); }
+.scale .on.s-bad { background: var(--bad); }
+.scale-labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 13px; color: var(--muted); }
+.scale-labels span:nth-child(2) { text-align: center; }
+.scale-labels span:nth-child(3) { text-align: right; }
+.scale-labels .cur { color: var(--tone); font-weight: 700; }
+
+.dest { margin-top: 22px; background: var(--soft); border-radius: 12px; padding: 14px 16px; }
+.dest p { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
+.url { word-break: break-all; font-size: 17px; color: var(--muted); }
+.url mark { background: none; color: var(--tone); font-weight: 700; }
+.reasons { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 8px; }
+.reasons li { display: flex; gap: 10px; align-items: flex-start; }
+.reasons svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--tone); }
+.err { color: var(--bad); margin: 0; }
+
+main { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; }
+section { margin-top: 52px; }
+section h2 { font-size: 24px; margin: 0 0 4px; }
+section > p { color: var(--muted); margin: 0 0 18px; }
+.bubbles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .bubble {
-  text-align: left; font: inherit; font-size: 16px; color: var(--ink);
-  background: var(--bubble); border: none; cursor: pointer;
-  border-radius: 18px 18px 18px 4px; padding: 12px 16px; max-width: 520px;
+  text-align: left; font: inherit; font-size: 15px; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); cursor: pointer;
+  border-radius: 16px 16px 16px 4px; padding: 14px 16px;
+  transition: border-color .15s, transform .15s;
 }
-.bubble small { display: block; color: var(--muted); font-size: 13px; margin-bottom: 2px; }
-.bubble:hover { background: color-mix(in srgb, var(--bubble) 80%, var(--accent)); }
+.bubble:hover { border-color: var(--go); transform: translateY(-2px); }
+.bubble small { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; font-weight: 700; }
 
-section.how { margin-top: 56px; padding-top: 28px; border-top: 2px solid var(--line); }
-.how dl { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 0; }
-.how dt { font-weight: 700; }
-.how dd { margin: 0; color: var(--muted); }
-footer p { margin: 0 0 6px; }
+.signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.signal { background: var(--surface); border-radius: 14px; padding: 18px; border: 1px solid var(--line); }
+.signal svg { width: 26px; height: 26px; color: var(--go); }
+.signal h3 { font-size: 17px; margin: 10px 0 4px; }
+.signal p { margin: 0; color: var(--muted); font-size: 15px; }
+
 footer { margin-top: 48px; font-size: 14px; color: var(--muted); }
-footer a { color: var(--accent); }
+footer p { margin: 0 0 6px; }
+footer a { color: var(--go); font-weight: 700; }
 
 @media (max-width: 560px) {
-  main { padding-top: 32px; }
-  .brand { margin-bottom: 32px; }
-  .how dl { grid-template-columns: 1fr; gap: 2px; }
-  .how dd { margin-bottom: 10px; }
+  .hero { padding-bottom: 104px; }
+  h1 { margin-top: 36px; }
   .go { width: 100%; }
+  .tabs button span.long { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .meter span { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .hero, .bubble { transition: none; }
+}
 </style>
 </head>
 <body>
-<main>
-  <div class="brand">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
-      <path d="M12 2v11a5 5 0 1 1-10 0v-1"/><path d="M2 12l3 3"/>
-    </svg>
-    Fisga
-  </div>
-
-  <h1>Recebeu um link estranho?</h1>
-  <p class="lead">Cole aqui antes de clicar. O Fisga mostra para onde o link leva de verdade e se ele tem cara de golpe.</p>
-
-  <div class="tabs" role="tablist">
-    <button role="tab" id="tab-url" aria-selected="true" aria-controls="form">Link</button>
-    <button role="tab" id="tab-email" aria-selected="false" aria-controls="form">Mensagem ou e-mail</button>
-  </div>
-  <form id="form" role="tabpanel" aria-labelledby="tab-url">
-    <input type="text" id="campo-url" aria-label="Link" placeholder="http://exemplo.com/..." autocomplete="off" spellcheck="false">
-    <textarea id="campo-email" aria-label="Mensagem" placeholder="Cole o texto da mensagem. Se tiver o e-mail original (.eml), cole ele inteiro para checar o remetente também." hidden></textarea>
-    <div class="row">
-      <span class="hint" id="hint">Nada é salvo.</span>
-      <button class="go" type="submit" id="go">Verificar</button>
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M14 2v11a5 5 0 1 1-10 0v-1"/><path d="M4 12l3 3"/></svg>
+      Fisga
     </div>
-  </form>
+    <h1>Recebeu um link estranho?</h1>
+    <p class="lead">Cole aqui antes de clicar. Em segundos você vê para onde ele leva de verdade e se tem cara de golpe.</p>
+  </div>
+</header>
 
-  <div id="result" aria-live="polite"></div>
+<div class="panel">
+  <div class="box">
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-url" aria-selected="true" aria-controls="form">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+        Link
+      </button>
+      <button role="tab" id="tab-email" aria-selected="false" aria-controls="form">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Mensagem<span class="long"> ou e-mail</span></span>
+      </button>
+    </div>
+    <form id="form" role="tabpanel" aria-labelledby="tab-url">
+      <input type="text" id="campo-url" aria-label="Link" placeholder="Cole o link aqui" autocomplete="off" spellcheck="false">
+      <textarea id="campo-email" aria-label="Mensagem" placeholder="Cole o texto do SMS, WhatsApp ou e-mail" hidden></textarea>
+      <div class="row">
+        <span class="hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          Nada do que você cola fica salvo
+        </span>
+        <button class="go" type="submit" id="go">Verificar</button>
+      </div>
+    </form>
+    <div id="result" aria-live="polite"></div>
+  </div>
+</div>
 
-  <section class="examples">
-    <h2>Teste com golpes comuns</h2>
-    <p>Mensagens no estilo das que circulam por SMS e WhatsApp.</p>
+<main>
+  <section>
+    <h2>Teste com um golpe comum</h2>
+    <p>Mensagens no estilo das que chegam por SMS e WhatsApp. Clique em uma.</p>
     <div class="bubbles">
       <button class="bubble" data-kind="email" data-text="CORREIOS: sua encomenda foi retida na fiscalizacao. Pague a taxa de R$ 9,90 via Pix hoje para liberar a entrega: http://correios-taxa-pendente.top/rastreio">
-        <small>+55 11 9xxxx-xxxx</small>
-        CORREIOS: sua encomenda foi retida na fiscalização. Pague a taxa de R$ 9,90 via Pix hoje…
+        <small>Correios</small>Sua encomenda foi retida. Pague a taxa de R$ 9,90 via Pix hoje para liberar…
       </button>
       <button class="bubble" data-kind="url" data-text="http://nubank-seguranca.xyz/login">
-        <small>Nubank (?)</small>
-        Detectamos um acesso incomum. Confirme seus dados: nubank-seguranca.xyz/login
+        <small>Nubank</small>Detectamos um acesso incomum. Confirme seus dados em nubank-seguranca.xyz
       </button>
       <button class="bubble" data-kind="url" data-text="https://caixa.gov.br.atualizacao-cadastro.online/token">
-        <small>Caixa (?)</small>
-        Seu FGTS está disponível. Atualize o cadastro: caixa.gov.br.atualizacao-cadastro.online
+        <small>Caixa</small>Seu FGTS está liberado. Atualize o cadastro em caixa.gov.br.atualizacao-cadastro.online
       </button>
     </div>
   </section>
 
-  <section class="how">
+  <section>
     <h2>O que é verificado</h2>
     <p>Três sinais diferentes entram no resultado.</p>
-    <dl>
-      <dt>Endereço</dt><dd>Se o domínio imita um banco ou órgão brasileiro, usa terminação suspeita, IP ou encurtador.</dd>
-      <dt>Remetente</dt><dd>No e-mail completo, se SPF, DKIM e DMARC batem e se o "responder para" é de outro lugar.</dd>
-      <dt>Texto</dt><dd>Urgência, cobrança via Pix ou boleto e pedido de senha, avaliados por um modelo de linguagem.</dd>
-    </dl>
+    <div class="signals">
+      <div class="signal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+        <h3>Endereço</h3>
+        <p>Se o domínio imita banco ou órgão do governo, usa terminação suspeita, IP ou encurtador.</p>
+      </div>
+      <div class="signal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        <h3>Remetente</h3>
+        <p>No e-mail completo, se SPF, DKIM e DMARC batem e se a resposta vai para outro endereço.</p>
+      </div>
+      <div class="signal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg>
+        <h3>Texto</h3>
+        <p>Urgência, cobrança via Pix ou boleto e pedido de senha, avaliados por um modelo de linguagem.</p>
+      </div>
+    </div>
   </section>
 
   <footer>
-    <p>O resultado é uma estimativa. Na dúvida, entre no site ou app oficial digitando o endereço você mesmo.</p>
+    <p>O resultado é uma estimativa. Na dúvida, abra o app oficial ou digite o endereço do site você mesmo.</p>
     <p><a href="https://github.com/lucasfalves07/Fisga">Código no GitHub</a></p>
   </footer>
 </main>
@@ -222,6 +269,19 @@ const $ = (s) => document.querySelector(s);
 const tabs = { url: $("#tab-url"), email: $("#tab-email") };
 const campos = { url: $("#campo-url"), email: $("#campo-email") };
 let modo = "url";
+
+const ICON = {
+  ok: '<path d="M20 6 9 17l-5-5"/>',
+  warn: '<path d="M12 8v5M12 17h.01"/>',
+  bad: '<path d="M18 6 6 18M6 6l12 12"/>',
+};
+const svg = (d, w = 3) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+
+const TEXTO = {
+  ok: ["Parece seguro", "Nenhum sinal claro de golpe. Mesmo assim, desconfie de pedidos de senha ou pagamento."],
+  warn: ["Suspeito", "Tem sinais de golpe. Não informe dados nem pague nada por esse link."],
+  bad: ["Provável golpe", "Não clique e não responda. Apague a mensagem."],
+};
 
 function trocar(m) {
   modo = m;
@@ -241,30 +301,38 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 function destacar(url, dominio) {
   if (!dominio) return esc(url);
   const host = url.replace(/^[a-z]+:\/\//i, "").split(/[/?#]/)[0];
-  const i = url.indexOf(host);
-  const j = host.lastIndexOf(dominio);
+  const i = url.indexOf(host), j = host.lastIndexOf(dominio);
   if (i < 0 || j < 0) return esc(url);
-  const ini = i + j, fim = ini + dominio.length;
-  return esc(url.slice(0, ini)) + "<mark>" + esc(url.slice(ini, fim)) + "</mark>" + esc(url.slice(fim));
+  const a = i + j, b = a + dominio.length;
+  return esc(url.slice(0, a)) + "<mark>" + esc(url.slice(a, b)) + "</mark>" + esc(url.slice(b));
 }
 
 function render(r) {
   const t = tom(r.veredito);
-  const pct = Math.round(r.score * 100);
-  const link = r.url ? r : (r.detalhes?.urls || []).sort((a, b) => b.score - a.score)[0];
-  const titulo = { bad: "Provável golpe", warn: "Suspeito", ok: "Parece seguro" }[t];
+  const [titulo, conselho] = TEXTO[t];
+  const link = r.url ? r : [...(r.detalhes?.urls || [])].sort((a, b) => b.score - a.score)[0];
   const motivos = r.motivos?.length ? r.motivos : ["Nenhum sinal de golpe encontrado."];
+  const nivel = { ok: 0, warn: 1, bad: 2 }[t];
+  const itemIcon = t === "ok" ? ICON.ok : '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>';
 
+  document.body.dataset.tom = t;
+  $("#result").className = t;
   $("#result").innerHTML = `
-    <div class="card ${t}">
-      <p class="verdict">${titulo}</p>
-      <div class="meter" role="img" aria-label="Risco ${pct}%"><span></span></div>
-      <div class="score">Risco estimado: ${pct}%</div>
-      ${link ? `<p class="dest">O link leva para</p><div class="url">${destacar(link.url, link.dominio)}</div>` : ""}
-      <h2>Por quê</h2>
-      <ul>${motivos.map((m) => `<li>${esc(m)}</li>`).join("")}</ul>
-    </div>`;
-  requestAnimationFrame(() => { $(".meter span").style.width = Math.max(pct, 3) + "%"; });
+    <div class="head">
+      <div class="icon">${svg(ICON[t])}</div>
+      <div>
+        <p class="verdict">${titulo}</p>
+        <p class="advice">${conselho}</p>
+      </div>
+    </div>
+    <div class="scale" role="img" aria-label="Nível de risco: ${titulo}, ${Math.round(r.score * 100)}%">
+      ${["s-ok", "s-warn", "s-bad"].map((c, i) => `<div class="${c}${i <= nivel ? " on" : ""}"></div>`).join("")}
+    </div>
+    <div class="scale-labels">
+      ${["Seguro", "Suspeito", "Golpe"].map((l, i) => `<span${i === nivel ? ' class="cur"' : ""}>${l}</span>`).join("")}
+    </div>
+    ${link ? `<div class="dest"><p>Esse link leva para o site</p><div class="url">${destacar(link.url, link.dominio)}</div></div>` : ""}
+    <ul class="reasons">${motivos.map((m) => `<li>${svg(itemIcon, 2.2)}<span>${esc(m)}</span></li>`).join("")}</ul>`;
 }
 
 async function verificar() {
@@ -284,9 +352,10 @@ async function verificar() {
     });
     if (!res.ok) throw new Error(res.status);
     render(await res.json());
-    $("#result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
   } catch {
-    $("#result").innerHTML = `<p class="err">Não foi possível verificar agora. Confira se a API está rodando e tente de novo.</p>`;
+    delete document.body.dataset.tom;
+    $("#result").className = "";
+    $("#result").innerHTML = `<p class="err">Não deu para verificar agora. Tente de novo em alguns segundos.</p>`;
   } finally {
     btn.disabled = false; btn.textContent = "Verificar";
   }
@@ -294,12 +363,15 @@ async function verificar() {
 
 $("#form").onsubmit = (e) => { e.preventDefault(); verificar(); };
 campos.email.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) verificar(); });
+for (const k of ["url", "email"]) campos[k].addEventListener("input", () => {
+  if (!campos[k].value) { delete document.body.dataset.tom; $("#result").innerHTML = ""; }
+});
 
 document.querySelectorAll(".bubble").forEach((b) => b.onclick = () => {
   trocar(b.dataset.kind);
   campos[b.dataset.kind].value = b.dataset.text;
+  window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   verificar();
-  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 </script>
 </body>
