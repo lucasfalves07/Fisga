@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fisga</title>
+<meta name="description" content="Cole um link ou mensagem suspeita e veja se é golpe.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #eef2f6;
+  --surface: #ffffff;
+  --ink: #172033;
+  --muted: #5a6478;
+  --line: #d3dae4;
+  --line-strong: #172033;
+  --accent: #0e6e78;
+  --ok: #1f7a4d;
+  --ok-bg: #e4f3ea;
+  --warn: #a8650f;
+  --warn-bg: #fbf0dc;
+  --bad: #b42318;
+  --bad-bg: #fbe5e2;
+  --bubble: #dfe6ee;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121826;
+    --surface: #1b2334;
+    --ink: #e8edf5;
+    --muted: #9aa5b8;
+    --line: #2d374b;
+    --line-strong: #e8edf5;
+    --accent: #4fb8c2;
+    --ok: #5cc58f;
+    --ok-bg: #16332a;
+    --warn: #e5a54b;
+    --warn-bg: #3a2c14;
+    --bad: #f0786b;
+    --bad-bg: #3d1d1b;
+    --bubble: #253047;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 17px/1.55 "Atkinson Hyperlegible", system-ui, sans-serif;
+}
+main { max-width: 720px; margin: 0 auto; padding: 56px 16px 40px; }
+h1, h2, .verdict, .brand {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 20px; margin-bottom: 48px;
+}
+.brand svg { width: 26px; height: 26px; color: var(--accent); }
+h1 {
+  font-size: clamp(38px, 7vw, 60px);
+  line-height: 1.02; font-weight: 800; margin: 0 0 14px;
+}
+.lead { color: var(--muted); font-size: 19px; margin: 0 0 32px; max-width: 34em; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: -2px; position: relative; }
+.tabs button {
+  font: 700 15px "Atkinson Hyperlegible", sans-serif;
+  color: var(--muted); background: transparent;
+  border: 2px solid transparent; border-bottom: none;
+  border-radius: 10px 10px 0 0; padding: 10px 18px; cursor: pointer;
+}
+.tabs button[aria-selected="true"] {
+  color: var(--ink); background: var(--surface); border-color: var(--line-strong);
+}
+form {
+  background: var(--surface);
+  border: 2px solid var(--line-strong);
+  border-radius: 0 14px 14px 14px;
+  padding: 18px;
+}
+textarea, input[type=text] {
+  width: 100%; font: inherit; color: var(--ink);
+  background: transparent; border: none; resize: vertical; outline: none;
+}
+input[type=text] { font-size: 19px; padding: 6px 2px; }
+textarea { min-height: 150px; font-size: 16px; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.hint { color: var(--muted); font-size: 14px; }
+.go {
+  font: 700 16px "Atkinson Hyperlegible", sans-serif;
+  background: var(--ink); color: var(--surface);
+  border: none; border-radius: 10px; padding: 12px 22px; cursor: pointer;
+}
+.go:disabled { opacity: .55; cursor: wait; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+textarea:focus-visible, input[type=text]:focus-visible { outline: none; }
+form:focus-within { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent); }
+.tabs button:focus-visible { outline-offset: -3px; }
+
+#result { margin-top: 28px; }
+.card {
+  border-radius: 14px; padding: 24px 22px;
+  background: var(--tone-bg); border-left: 8px solid var(--tone);
+}
+.card.ok { --tone: var(--ok); --tone-bg: var(--ok-bg); }
+.card.warn { --tone: var(--warn); --tone-bg: var(--warn-bg); }
+.card.bad { --tone: var(--bad); --tone-bg: var(--bad-bg); }
+.verdict { font-size: clamp(30px, 6vw, 42px); font-weight: 800; color: var(--tone); margin: 0; line-height: 1.05; }
+.meter { height: 10px; border-radius: 99px; background: color-mix(in srgb, var(--tone) 18%, transparent); margin: 16px 0 6px; overflow: hidden; }
+.meter span { display: block; height: 100%; background: var(--tone); border-radius: inherit; width: 0; transition: width .6s cubic-bezier(.2,.8,.2,1); }
+.score { font-size: 14px; color: var(--muted); }
+.dest { margin: 20px 0 4px; font-size: 15px; color: var(--muted); }
+.url {
+  font-size: 17px; word-break: break-all; padding: 10px 12px;
+  background: var(--surface); border-radius: 8px; color: var(--muted);
+}
+.url mark { background: none; color: var(--tone); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.card h2 { font-size: 19px; margin: 22px 0 8px; }
+.card ul { margin: 0; padding-left: 20px; }
+.card li { margin: 4px 0; }
+.err { color: var(--bad); margin-top: 16px; }
+
+section.examples { margin-top: 56px; }
+section h2 { font-size: 24px; margin: 0 0 6px; }
+section p { color: var(--muted); margin: 0 0 18px; }
+.bubbles { display: grid; gap: 12px; }
+.bubble {
+  text-align: left; font: inherit; font-size: 16px; color: var(--ink);
+  background: var(--bubble); border: none; cursor: pointer;
+  border-radius: 18px 18px 18px 4px; padding: 12px 16px; max-width: 520px;
+}
+.bubble small { display: block; color: var(--muted); font-size: 13px; margin-bottom: 2px; }
+.bubble:hover { background: color-mix(in srgb, var(--bubble) 80%, var(--accent)); }
+
+section.how { margin-top: 56px; padding-top: 28px; border-top: 2px solid var(--line); }
+.how dl { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 0; }
+.how dt { font-weight: 700; }
+.how dd { margin: 0; color: var(--muted); }
+footer p { margin: 0 0 6px; }
+footer { margin-top: 48px; font-size: 14px; color: var(--muted); }
+footer a { color: var(--accent); }
+
+@media (max-width: 560px) {
+  main { padding-top: 32px; }
+  .brand { margin-bottom: 32px; }
+  .how dl { grid-template-columns: 1fr; gap: 2px; }
+  .how dd { margin-bottom: 10px; }
+  .go { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .meter span { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+      <path d="M12 2v11a5 5 0 1 1-10 0v-1"/><path d="M2 12l3 3"/>
+    </svg>
+    Fisga
+  </div>
+
+  <h1>Recebeu um link estranho?</h1>
+  <p class="lead">Cole aqui antes de clicar. O Fisga mostra para onde o link leva de verdade e se ele tem cara de golpe.</p>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-url" aria-selected="true" aria-controls="form">Link</button>
+    <button role="tab" id="tab-email" aria-selected="false" aria-controls="form">Mensagem ou e-mail</button>
+  </div>
+  <form id="form" role="tabpanel" aria-labelledby="tab-url">
+    <input type="text" id="campo-url" aria-label="Link" placeholder="http://exemplo.com/..." autocomplete="off" spellcheck="false">
+    <textarea id="campo-email" aria-label="Mensagem" placeholder="Cole o texto da mensagem. Se tiver o e-mail original (.eml), cole ele inteiro para checar o remetente também." hidden></textarea>
+    <div class="row">
+      <span class="hint" id="hint">Nada é salvo.</span>
+      <button class="go" type="submit" id="go">Verificar</button>
+    </div>
+  </form>
+
+  <div id="result" aria-live="polite"></div>
+
+  <section class="examples">
+    <h2>Teste com golpes comuns</h2>
+    <p>Mensagens no estilo das que circulam por SMS e WhatsApp.</p>
+    <div class="bubbles">
+      <button class="bubble" data-kind="email" data-text="CORREIOS: sua encomenda foi retida na fiscalizacao. Pague a taxa de R$ 9,90 via Pix hoje para liberar a entrega: http://correios-taxa-pendente.top/rastreio">
+        <small>+55 11 9xxxx-xxxx</small>
+        CORREIOS: sua encomenda foi retida na fiscalização. Pague a taxa de R$ 9,90 via Pix hoje…
+      </button>
+      <button class="bubble" data-kind="url" data-text="http://nubank-seguranca.xyz/login">
+        <small>Nubank (?)</small>
+        Detectamos um acesso incomum. Confirme seus dados: nubank-seguranca.xyz/login
+      </button>
+      <button class="bubble" data-kind="url" data-text="https://caixa.gov.br.atualizacao-cadastro.online/token">
+        <small>Caixa (?)</small>
+        Seu FGTS está disponível. Atualize o cadastro: caixa.gov.br.atualizacao-cadastro.online
+      </button>
+    </div>
+  </section>
+
+  <section class="how">
+    <h2>O que é verificado</h2>
+    <p>Três sinais diferentes entram no resultado.</p>
+    <dl>
+      <dt>Endereço</dt><dd>Se o domínio imita um banco ou órgão brasileiro, usa terminação suspeita, IP ou encurtador.</dd>
+      <dt>Remetente</dt><dd>No e-mail completo, se SPF, DKIM e DMARC batem e se o "responder para" é de outro lugar.</dd>
+      <dt>Texto</dt><dd>Urgência, cobrança via Pix ou boleto e pedido de senha, avaliados por um modelo de linguagem.</dd>
+    </dl>
+  </section>
+
+  <footer>
+    <p>O resultado é uma estimativa. Na dúvida, entre no site ou app oficial digitando o endereço você mesmo.</p>
+    <p><a href="https://github.com/lucasfalves07/Fisga">Código no GitHub</a></p>
+  </footer>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const tabs = { url: $("#tab-url"), email: $("#tab-email") };
+const campos = { url: $("#campo-url"), email: $("#campo-email") };
+let modo = "url";
+
+function trocar(m) {
+  modo = m;
+  for (const k of ["url", "email"]) {
+    tabs[k].setAttribute("aria-selected", k === m);
+    campos[k].hidden = k !== m;
+  }
+  $("#form").setAttribute("aria-labelledby", tabs[m].id);
+  campos[m].focus();
+}
+tabs.url.onclick = () => trocar("url");
+tabs.email.onclick = () => trocar("email");
+
+const tom = (v) => v === "provável golpe" ? "bad" : v === "suspeito" ? "warn" : "ok";
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function destacar(url, dominio) {
+  if (!dominio) return esc(url);
+  const host = url.replace(/^[a-z]+:\/\//i, "").split(/[/?#]/)[0];
+  const i = url.indexOf(host);
+  const j = host.lastIndexOf(dominio);
+  if (i < 0 || j < 0) return esc(url);
+  const ini = i + j, fim = ini + dominio.length;
+  return esc(url.slice(0, ini)) + "<mark>" + esc(url.slice(ini, fim)) + "</mark>" + esc(url.slice(fim));
+}
+
+function render(r) {
+  const t = tom(r.veredito);
+  const pct = Math.round(r.score * 100);
+  const link = r.url ? r : (r.detalhes?.urls || []).sort((a, b) => b.score - a.score)[0];
+  const titulo = { bad: "Provável golpe", warn: "Suspeito", ok: "Parece seguro" }[t];
+  const motivos = r.motivos?.length ? r.motivos : ["Nenhum sinal de golpe encontrado."];
+
+  $("#result").innerHTML = `
+    <div class="card ${t}">
+      <p class="verdict">${titulo}</p>
+      <div class="meter" role="img" aria-label="Risco ${pct}%"><span></span></div>
+      <div class="score">Risco estimado: ${pct}%</div>
+      ${link ? `<p class="dest">O link leva para</p><div class="url">${destacar(link.url, link.dominio)}</div>` : ""}
+      <h2>Por quê</h2>
+      <ul>${motivos.map((m) => `<li>${esc(m)}</li>`).join("")}</ul>
+    </div>`;
+  requestAnimationFrame(() => { $(".meter span").style.width = Math.max(pct, 3) + "%"; });
+}
+
+async function verificar() {
+  const valor = campos[modo].value.trim();
+  if (!valor) { campos[modo].focus(); return; }
+
+  let raw = valor;
+  if (modo === "email" && !/^(from|subject|received|return-path|authentication-results|message-id):/im.test(valor)) raw = "Subject: \n\n" + valor;
+
+  const btn = $("#go");
+  btn.disabled = true; btn.textContent = "Verificando…";
+  try {
+    const res = await fetch(modo === "url" ? "/analyze/url" : "/analyze/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(modo === "url" ? { url: valor } : { raw }),
+    });
+    if (!res.ok) throw new Error(res.status);
+    render(await res.json());
+    $("#result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+  } catch {
+    $("#result").innerHTML = `<p class="err">Não foi possível verificar agora. Confira se a API está rodando e tente de novo.</p>`;
+  } finally {
+    btn.disabled = false; btn.textContent = "Verificar";
+  }
+}
+
+$("#form").onsubmit = (e) => { e.preventDefault(); verificar(); };
+campos.email.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) verificar(); });
+
+document.querySelectorAll(".bubble").forEach((b) => b.onclick = () => {
+  trocar(b.dataset.kind);
+  campos[b.dataset.kind].value = b.dataset.text;
+  verificar();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+</script>
+</body>
+</html>

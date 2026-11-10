@@ -53,7 +53,7 @@ def score_email(raw: str) -> dict:
     urls = [score_url(u) for u in extract_urls(body)[:10]]
 
     url_max = max((u["score"] for u in urls), default=0.0)
-    s = 0.5 * text["score"] + 0.3 * url_max + headers["penalty"]
+    s = max(0.5 * text["score"] + 0.3 * url_max + headers["penalty"], url_max)
     s = round(min(s, 1.0), 2)
 
     motivos = text["motivos"] + headers["reasons"]
