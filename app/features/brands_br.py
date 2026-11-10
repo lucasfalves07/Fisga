@@ -6,7 +6,7 @@ BRANDS = {
     "caixa": ["caixa.gov.br"],
     "bancodobrasil": ["bb.com.br"],
     "bb": ["bb.com.br"],
-    "inter": ["bancointer.com.br", "inter.co"],
+    "bancointer": ["bancointer.com.br", "inter.co"],
     "picpay": ["picpay.com"],
     "mercadopago": ["mercadopago.com.br"],
     "mercadolivre": ["mercadolivre.com.br"],

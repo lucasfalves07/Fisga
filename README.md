@@ -45,6 +45,14 @@ curl -X POST localhost:8000/analyze/url \
 
 Para e-mail, envie o conteúdo bruto (`.eml`) em `/analyze/email` no campo `raw`.
 
+## Dataset
+
+```bash
+python -m scripts.coletar_urls --balancear
+```
+
+Baixa URLs de OpenPhish e Phishing.Database (e PhishTank, se `PHISHTANK_KEY` estiver no `.env`), mantém só as com alvo brasileiro e junta com domínios legítimos da lista Tranco. Sai em `data/processed/urls.csv`. Rodando de novo, as URLs antigas são mantidas e o dataset cresce.
+
 ## Testes
 
 ```bash

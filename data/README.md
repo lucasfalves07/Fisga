@@ -4,7 +4,7 @@
 
 | Tipo | Fonte | Observação |
 |---|---|---|
-| URLs maliciosas | PhishTank, OpenPhish, URLhaus | filtrar alvos brasileiros |
+| URLs maliciosas | OpenPhish, Phishing.Database, PhishTank | filtrar alvos brasileiros |
 | URLs legítimas | Tranco top 1M | filtrar `.br` e marcas da lista |
 | Mensagens de golpe | prints/SMS reais anonimizados, relatos públicos | remover nome, CPF, telefone |
 | Mensagens legítimas | e-mails próprios, newsletters | |

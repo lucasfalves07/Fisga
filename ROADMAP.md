@@ -8,7 +8,7 @@
 - [x] Score por regras
 
 ## Dataset
-- [ ] URLs maliciosas (PhishTank, OpenPhish, URLhaus) com alvo BR
+- [ ] URLs maliciosas (OpenPhish, Phishing.Database, PhishTank) com alvo BR
 - [ ] URLs legítimas (Tranco, domínios .br)
 - [ ] 200 a 500 mensagens de golpe em PT-BR
 - [ ] Documentar em `data/README.md`
