@@ -5,374 +5,785 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fisga</title>
 <meta name="description" content="Cole um link ou mensagem suspeita e veja se é golpe.">
+<meta name="theme-color" content="#2342ff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --sea: #0c4a5c;
-  --sea-deep: #083544;
-  --foam: #bfe7ec;
-  --bg: #f2f5f7;
+  --blue: #2342ff;
+  --blue-deep: #1426c4;
+  --yellow: #ffd23f;
+  --yellow-deep: #f5b800;
+  --ok: #0f9d58;
+  --ok-deep: #087443;
+  --ok-soft: #dcf7e8;
+  --warn: #f08c00;
+  --warn-deep: #b45f00;
+  --warn-soft: #fff1d6;
+  --bad: #e5312a;
+  --bad-deep: #b3201a;
+  --bad-soft: #ffe1df;
+  --bg: #f3f5ff;
   --surface: #ffffff;
-  --ink: #15202b;
-  --muted: #5b6876;
-  --line: #dde3e9;
-  --go: #0c4a5c;
-  --ok: #15803d;
-  --ok-soft: #dcfce7;
-  --warn: #c2410c;
-  --warn-amber: #f59e0b;
-  --warn-soft: #ffedd5;
-  --bad: #dc2626;
-  --bad-soft: #fee2e2;
-  --idle: #d6dde4;
-  --hero: var(--sea);
+  --surface-2: #eef1fb;
+  --ink: #0f1535;
+  --muted: #5a6182;
+  --line: #dfe3f3;
+  --hero: var(--blue);
+  --hero-ink: #ffffff;
+  --hero-muted: rgba(255,255,255,.8);
+  --shadow: 0 20px 44px -22px rgba(20,38,196,.55);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f1820;
-    --surface: #17232d;
-    --ink: #e6edf3;
-    --muted: #93a3b3;
-    --line: #26343f;
-    --go: #3fb6c6;
-    --ok: #4ade80;
-    --ok-soft: #12301f;
-    --warn: #fb923c;
-    --warn-soft: #3a2412;
-    --bad: #f87171;
-    --bad-soft: #3d1717;
-    --idle: #2a3844;
+    --bg: #0d1126;
+    --surface: #161c38;
+    --surface-2: #1e2547;
+    --ink: #eef0ff;
+    --muted: #a3a9c9;
+    --line: #2a3260;
+    --ok-soft: #10301f;
+    --warn-soft: #3a2a0d;
+    --bad-soft: #3d1614;
+    --ok-deep: #4ade80;
+    --warn-deep: #fbbf24;
+    --bad-deep: #ff7b74;
+    --shadow: 0 20px 44px -22px rgba(0,0,0,.7);
   }
 }
-body[data-tom="ok"] { --hero: #14532d; }
-body[data-tom="warn"] { --hero: #9a3412; }
-body[data-tom="bad"] { --hero: #991b1b; }
+body[data-screen="quiz"] { --hero: var(--yellow); --hero-ink: #0f1535; --hero-muted: rgba(15,21,53,.75); }
+body[data-screen="resultado"][data-tom="ok"] { --hero: var(--ok); }
+body[data-screen="resultado"][data-tom="warn"] { --hero: var(--warn); }
+body[data-screen="resultado"][data-tom="bad"] { --hero: var(--bad); }
 
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
+  margin: 0; background: var(--bg); color: var(--ink);
   font: 17px/1.55 "Atkinson Hyperlegible", system-ui, sans-serif;
 }
-h1, h2, .verdict, .brand { font-family: "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -0.02em; }
+h1, h2, h3, .brand, .big { font-family: "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -0.02em; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
 
-.hero {
-  background: var(--hero);
-  color: #fff;
-  padding: 28px 16px 120px;
-  transition: background-color .5s ease;
+.topbar { background: var(--hero); color: var(--hero-ink); transition: background-color .4s ease, color .4s ease; }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 22px; color: inherit; text-decoration: none; }
+.brand svg { width: 30px; height: 30px; }
+.nav { display: flex; gap: 4px; }
+.nav a {
+  display: flex; align-items: center; gap: 8px; color: var(--hero-ink); text-decoration: none;
+  font-weight: 700; font-size: 15px; padding: 9px 14px; border-radius: 99px; opacity: .85;
 }
-.wrap { max-width: 728px; margin: 0 auto; }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 21px; }
-.brand svg { width: 28px; height: 28px; color: var(--foam); }
-h1 { font-size: clamp(36px, 6.5vw, 58px); line-height: 1.04; font-weight: 800; margin: 56px 0 12px; }
-.lead { font-size: 19px; color: rgba(255,255,255,.82); margin: 0; max-width: 32em; }
+.nav a svg { width: 19px; height: 19px; }
+.nav a:hover { opacity: 1; background: rgba(255,255,255,.14); }
+.nav a[aria-current="page"] { opacity: 1; background: rgba(255,255,255,.22); }
+body[data-screen="quiz"] .nav a:hover, body[data-screen="quiz"] .nav a[aria-current="page"] { background: rgba(15,21,53,.1); }
 
-.panel {
-  max-width: 760px; margin: -88px auto 0; padding: 0 16px;
-  position: relative;
-}
-.box {
-  background: var(--surface);
-  border-radius: 18px;
-  box-shadow: 0 18px 40px -18px rgba(8,53,68,.45);
-  overflow: hidden;
-}
-.tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
-.tabs button {
-  font: 700 16px "Atkinson Hyperlegible", sans-serif;
-  background: none; border: none; color: var(--muted);
-  padding: 16px 12px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  border-bottom: 3px solid transparent; margin-bottom: -1px;
-}
-.tabs button svg { width: 19px; height: 19px; }
-.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--go); }
-form { padding: 18px 20px 20px; }
-input[type=text], textarea {
-  width: 100%; font: inherit; color: var(--ink);
-  background: var(--bg); border: 2px solid transparent; border-radius: 12px;
-  padding: 14px 16px; outline: none; transition: border-color .15s;
-}
-input[type=text] { font-size: 18px; }
-textarea { min-height: 140px; resize: vertical; font-size: 16px; }
-input[type=text]:focus, textarea:focus { border-color: var(--go); background: var(--surface); }
-.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
-.hint { color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 6px; }
-.hint svg { width: 16px; height: 16px; }
-.go {
-  font: 700 17px "Atkinson Hyperlegible", sans-serif;
-  background: var(--go); color: #fff; border: none; border-radius: 12px;
-  padding: 13px 26px; cursor: pointer;
-}
-.go:hover { filter: brightness(1.1); }
-.go:disabled { opacity: .6; cursor: wait; }
-:focus-visible { outline: 3px solid var(--warn-amber); outline-offset: 2px; }
+.hero { background: var(--hero); color: var(--hero-ink); padding: 28px 0 110px; transition: background-color .4s ease, color .4s ease; }
+.hero h1 { font-size: clamp(36px, 6.4vw, 60px); line-height: 1.03; font-weight: 800; margin: 12px 0 12px; }
+.hero p.lead { font-size: 19px; color: var(--hero-muted); margin: 0; max-width: 32em; }
+.lift { margin-top: -84px; position: relative; }
 
-#result:empty { display: none; }
-#result { border-top: 1px solid var(--line); padding: 24px 20px 26px; }
-.head { display: flex; gap: 16px; align-items: center; }
-.icon {
-  flex: none; width: 56px; height: 56px; border-radius: 50%;
-  display: grid; place-items: center; color: #fff; background: var(--tone);
+.card { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); }
+.check { padding: 18px; }
+.field { position: relative; background: var(--surface-2); border-radius: 16px; border: 2px solid transparent; transition: border-color .15s, background-color .15s; }
+.field:focus-within { border-color: var(--blue); background: var(--surface); }
+.field textarea {
+  display: block; width: 100%; border: none; background: transparent; outline: none; resize: none;
+  font: inherit; font-size: 19px; color: var(--ink); padding: 16px 16px 48px; min-height: 64px; max-height: 320px;
 }
-.icon svg { width: 30px; height: 30px; }
-.ok { --tone: var(--ok); --soft: var(--ok-soft); }
-.warn { --tone: var(--warn); --soft: var(--warn-soft); }
-.bad { --tone: var(--bad); --soft: var(--bad-soft); }
-.verdict { font-size: clamp(28px, 5vw, 38px); font-weight: 800; color: var(--tone); margin: 0; line-height: 1.05; }
-.advice { margin: 4px 0 0; color: var(--ink); }
-
-.scale { margin: 22px 0 4px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.scale div { height: 10px; border-radius: 99px; background: var(--idle); }
-.scale .on.s-ok { background: var(--ok); }
-.scale .on.s-warn { background: var(--warn-amber); }
-.scale .on.s-bad { background: var(--bad); }
-.scale-labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 13px; color: var(--muted); }
-.scale-labels span:nth-child(2) { text-align: center; }
-.scale-labels span:nth-child(3) { text-align: right; }
-.scale-labels .cur { color: var(--tone); font-weight: 700; }
-
-.dest { margin-top: 22px; background: var(--soft); border-radius: 12px; padding: 14px 16px; }
-.dest p { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
-.url { word-break: break-all; font-size: 17px; color: var(--muted); }
-.url mark { background: none; color: var(--tone); font-weight: 700; }
-.reasons { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 8px; }
-.reasons li { display: flex; gap: 10px; align-items: flex-start; }
-.reasons svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--tone); }
-.err { color: var(--bad); margin: 0; }
-
-main { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; }
-section { margin-top: 52px; }
-section h2 { font-size: 24px; margin: 0 0 4px; }
-section > p { color: var(--muted); margin: 0 0 18px; }
-.bubbles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-.bubble {
-  text-align: left; font: inherit; font-size: 15px; color: var(--ink);
-  background: var(--surface); border: 1px solid var(--line); cursor: pointer;
-  border-radius: 16px 16px 16px 4px; padding: 14px 16px;
-  transition: border-color .15s, transform .15s;
+.field textarea::placeholder { color: var(--muted); }
+.field-bar { position: absolute; left: 12px; right: 12px; bottom: 10px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
+.field-bar > * { pointer-events: auto; }
+.kind { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
+.kind.link { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 35%, transparent); }
+.kind.msg { color: var(--warn-deep); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+.ghost {
+  display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer;
+  color: var(--blue); font-weight: 700; font-size: 14px; padding: 6px 8px; border-radius: 8px;
 }
-.bubble:hover { border-color: var(--go); transform: translateY(-2px); }
-.bubble small { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; font-weight: 700; }
+.ghost svg { width: 17px; height: 17px; }
+.ghost:hover { background: color-mix(in srgb, var(--blue) 10%, transparent); }
+.actions { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  border: none; border-radius: 14px; padding: 14px 26px; cursor: pointer; text-decoration: none;
+  font-weight: 700; font-size: 17px; transition: transform .12s ease, filter .12s ease;
+}
+.btn:active { transform: scale(.97); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-main { background: var(--blue); color: #fff; box-shadow: 0 8px 20px -10px var(--blue); }
+.btn-main:hover { filter: brightness(1.08); }
+.btn-soft { background: var(--surface-2); color: var(--ink); }
+.btn-soft:hover { filter: brightness(.97); }
+.btn:disabled { opacity: .7; cursor: wait; }
+.spin { width: 18px; height: 18px; border-radius: 50%; border: 3px solid rgba(255,255,255,.35); border-top-color: #fff; animation: r .8s linear infinite; }
+@keyframes r { to { transform: rotate(360deg); } }
+.note { font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.note svg { width: 16px; height: 16px; flex: none; }
+.err { margin: 12px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--bad-soft); color: var(--bad-deep); font-weight: 700; font-size: 15px; }
+.slow { margin: 12px 0 0; font-size: 14px; color: var(--muted); }
 
-.signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
-.signal { background: var(--surface); border-radius: 14px; padding: 18px; border: 1px solid var(--line); }
-.signal svg { width: 26px; height: 26px; color: var(--go); }
-.signal h3 { font-size: 17px; margin: 10px 0 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; align-items: center; }
+.chips span { font-size: 14px; color: var(--muted); margin-right: 2px; }
+.chip {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 99px; cursor: pointer;
+  padding: 7px 14px; font-size: 14px; font-weight: 700; color: var(--ink);
+}
+.chip:hover { border-color: var(--blue); color: var(--blue); }
+
+.block { margin-top: 40px; }
+.block h2 { font-size: 26px; margin: 0 0 4px; }
+.block > p { color: var(--muted); margin: 0 0 18px; }
+
+.promo {
+  display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center;
+  background: var(--yellow); color: #0f1535; border-radius: 22px; padding: 24px; text-decoration: none;
+  transition: transform .15s ease;
+}
+.promo:hover { transform: translateY(-3px); }
+.promo h2 { font-size: 26px; margin: 0 0 6px; line-height: 1.1; }
+.promo p { margin: 0; color: rgba(15,21,53,.78); }
+.promo .bubble-ico { width: 84px; height: 84px; border-radius: 24px; background: #0f1535; color: var(--yellow); display: grid; place-items: center; transform: rotate(-6deg); }
+.promo .bubble-ico svg { width: 44px; height: 44px; }
+
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.row {
+  width: 100%; display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; cursor: pointer;
+}
+.row:hover { border-color: var(--blue); }
+.dot { width: 14px; height: 14px; border-radius: 50%; }
+.dot.ok { background: var(--ok); } .dot.warn { background: var(--warn); } .dot.bad { background: var(--bad); }
+.row .what { min-width: 0; }
+.row .what b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.row .what small { color: var(--muted); font-size: 14px; }
+.row .pct { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 20px; }
+.pct.ok { color: var(--ok-deep); } .pct.warn { color: var(--warn-deep); } .pct.bad { color: var(--bad-deep); }
+
+.verdict-hero { text-align: center; padding-bottom: 104px; }
+.gauge { width: min(300px, 80vw); display: block; margin: 0 auto; overflow: visible; }
+.gauge .track { stroke: rgba(255,255,255,.28); }
+.gauge .value { stroke: #fff; transition: stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1); }
+.gauge-num { font-size: 64px; font-weight: 800; line-height: 1; margin-top: -78px; }
+.gauge-num small { font-size: 28px; }
+.gauge-cap { font-size: 14px; color: var(--hero-muted); margin-top: 4px; }
+.big { font-size: clamp(38px, 7vw, 58px); font-weight: 800; margin: 18px 0 4px; line-height: 1.02; }
+.verdict-hero p { margin: 0 auto; max-width: 28em; color: var(--hero-muted); font-size: 18px; }
+
+.panel { padding: 22px; }
+.panel + .panel { margin-top: 16px; }
+.panel h2 { font-size: 22px; margin: 0 0 14px; }
+.todo { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.todo li { display: flex; gap: 12px; align-items: flex-start; font-weight: 700; }
+.todo li svg { flex: none; width: 24px; height: 24px; padding: 4px; border-radius: 50%; color: #fff; background: var(--tone); margin-top: 1px; }
+
+.anatomy { display: flex; flex-wrap: wrap; font-size: 18px; word-break: break-all; background: var(--surface-2); border-radius: 14px; padding: 14px 16px; }
+.seg { cursor: pointer; border-radius: 6px; padding: 2px 1px; border-bottom: 3px solid var(--c); transition: background-color .15s; background: none; border-top: none; border-left: none; border-right: none; font: inherit; color: var(--ink); text-align: left; }
+.seg:hover, .seg.on { background: color-mix(in srgb, var(--c) 18%, transparent); }
+.seg.main { font-weight: 700; }
+.legend { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+.legend li { display: grid; grid-template-columns: 14px 1fr; gap: 12px; align-items: start; padding: 8px 10px; border-radius: 10px; transition: background-color .15s; }
+.legend li.on { background: color-mix(in srgb, var(--c) 12%, transparent); }
+.legend i { width: 14px; height: 14px; border-radius: 4px; background: var(--c); margin-top: 5px; }
+.legend b { display: block; }
+.legend span { color: var(--muted); font-size: 15px; }
+
+.why { display: grid; gap: 8px; }
+.why details { background: var(--surface-2); border-radius: 12px; }
+.why summary { list-style: none; cursor: pointer; display: flex; gap: 12px; align-items: center; padding: 12px 14px; font-weight: 700; }
+.why summary::-webkit-details-marker { display: none; }
+.why summary svg.flag { flex: none; width: 22px; height: 22px; color: var(--tone); }
+.why summary svg.chev { margin-left: auto; flex: none; width: 18px; height: 18px; color: var(--muted); transition: transform .2s; }
+.why details[open] summary svg.chev { transform: rotate(180deg); }
+.why details p { margin: 0; padding: 0 14px 14px 48px; color: var(--muted); }
+.why .plain { display: flex; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface-2); border-radius: 12px; font-weight: 700; }
+.why .plain svg { flex: none; width: 22px; height: 22px; color: var(--tone); }
+.tone-ok { --tone: var(--ok); } .tone-warn { --tone: var(--warn); } .tone-bad { --tone: var(--bad); }
+.end-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+.toast {
+  position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 20px); opacity: 0;
+  background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 99px; font-weight: 700; font-size: 15px;
+  transition: opacity .2s, transform .2s; pointer-events: none; z-index: 30;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.progress { display: grid; grid-auto-flow: column; gap: 5px; margin-bottom: 18px; }
+.progress i { height: 8px; border-radius: 99px; background: var(--line); }
+.progress i.hit { background: var(--ok); } .progress i.miss { background: var(--bad); } .progress i.cur { background: var(--blue); }
+.qcount { display: flex; justify-content: space-between; font-size: 15px; color: var(--muted); margin-bottom: 10px; font-weight: 700; }
+.phone { background: var(--surface-2); border-radius: 18px; padding: 18px; border: 3px solid transparent; transition: border-color .2s; }
+.phone.right { border-color: var(--ok); } .phone.wrong { border-color: var(--bad); }
+.sender { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; background: var(--blue); font-family: "Bricolage Grotesque", sans-serif; }
+.sender b { display: block; line-height: 1.2; }
+.sender small { color: var(--muted); font-size: 13px; }
+.msg { background: var(--surface); border-radius: 4px 18px 18px 18px; padding: 14px 16px; font-size: 18px; max-width: 520px; }
+.msg .lnk { color: var(--blue); text-decoration: underline; word-break: break-all; }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.choice { border: none; border-radius: 16px; padding: 18px 12px; font-weight: 800; font-size: 19px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: #fff; font-family: "Bricolage Grotesque", sans-serif; transition: transform .12s, opacity .2s; }
+.choice svg { width: 24px; height: 24px; }
+.choice:active { transform: scale(.97); }
+.choice.golpe { background: var(--bad); }
+.choice.seguro { background: var(--ok); }
+.choice:disabled { cursor: default; opacity: .35; }
+.choice.picked { opacity: 1; outline: 4px solid var(--ink); outline-offset: 2px; }
+.feedback { margin-top: 18px; padding: 18px; border-radius: 16px; background: var(--fb-bg); }
+.feedback.right { --fb-bg: var(--ok-soft); --fb: var(--ok-deep); }
+.feedback.wrong { --fb-bg: var(--bad-soft); --fb: var(--bad-deep); }
+.feedback h3 { margin: 0 0 6px; font-size: 22px; color: var(--fb); }
+.feedback p { margin: 0 0 14px; }
+.score-card { text-align: center; padding: 34px 22px; }
+.score-card .big { color: var(--blue); margin-top: 0; }
+.score-card p { color: var(--muted); max-width: 30em; margin: 0 auto 22px; }
+.score-card .end-actions { justify-content: center; }
+
+.signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.signal { background: var(--surface); border-radius: 18px; padding: 20px; border: 1px solid var(--line); }
+.signal .ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: #fff; }
+.signal .ico svg { width: 24px; height: 24px; }
+.signal h3 { font-size: 19px; margin: 12px 0 4px; }
 .signal p { margin: 0; color: var(--muted); font-size: 15px; }
-
-footer { margin-top: 48px; font-size: 14px; color: var(--muted); }
+.tips { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.tips li { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; gap: 12px; }
+.tips svg { flex: none; width: 22px; height: 22px; color: var(--blue); margin-top: 2px; }
+.empty { text-align: center; padding: 34px 22px; }
+.empty svg { width: 48px; height: 48px; color: var(--blue); }
+.empty h2 { margin: 10px 0 4px; font-size: 24px; }
+.empty p { color: var(--muted); margin: 0 0 20px; }
+.head-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+.head-row h2 { margin: 0; font-size: 22px; }
+footer { margin: 48px 0 0; padding-bottom: 40px; font-size: 14px; color: var(--muted); }
 footer p { margin: 0 0 6px; }
-footer a { color: var(--go); font-weight: 700; }
+footer a { color: var(--blue); font-weight: 700; }
 
-@media (max-width: 560px) {
-  .hero { padding-bottom: 104px; }
-  h1 { margin-top: 36px; }
-  .go { width: 100%; }
-  .tabs button span.long { display: none; }
+.tabbar { display: none; }
+@media (max-width: 720px) {
+  .nav { display: none; }
+  body { padding-bottom: 76px; }
+  .tabbar {
+    display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    background: var(--surface); border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  .tabbar a { display: grid; justify-items: center; gap: 2px; font-size: 12px; font-weight: 700; color: var(--muted); text-decoration: none; padding: 6px 0; border-radius: 12px; }
+  .tabbar a svg { width: 24px; height: 24px; }
+  .tabbar a[aria-current="page"] { color: var(--blue); background: color-mix(in srgb, var(--blue) 10%, transparent); }
+  .hero { padding-top: 16px; }
+  .btn { width: 100%; }
+  .actions .note { order: 2; }
+  .promo { grid-template-columns: 1fr; }
+  .promo .bubble-ico { display: none; }
+  .choice { font-size: 17px; padding: 16px 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero, .bubble { transition: none; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
 }
 </style>
 </head>
-<body>
-<header class="hero">
+<body data-screen="verificar">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-hook" viewBox="0 0 24 24"><path d="M14 2v11a5 5 0 1 1-10 0v-1M4 12l3 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></g></symbol>
+  <symbol id="i-game" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M10 8.5a2 2 0 1 1 2.6 1.9c-.4.2-.6.5-.6.9V12M12 14.5h.01"/></g></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></g></symbol>
+  <symbol id="i-paste" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/></g></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10.3 3.9 2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></g></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></g></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></g></symbol>
+  <symbol id="i-text" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></g></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></g></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="topbar">
   <div class="wrap">
-    <div class="brand">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M14 2v11a5 5 0 1 1-10 0v-1"/><path d="M4 12l3 3"/></svg>
-      Fisga
-    </div>
-    <h1>Recebeu um link estranho?</h1>
-    <p class="lead">Cole aqui antes de clicar. Em segundos você vê para onde ele leva de verdade e se tem cara de golpe.</p>
+    <a class="brand" href="#/verificar"><svg><use href="#i-hook"/></svg>Fisga</a>
+    <nav class="nav" aria-label="Principal">
+      <a href="#/verificar" data-route="verificar"><svg><use href="#i-search"/></svg>Verificar</a>
+      <a href="#/quiz" data-route="quiz"><svg><use href="#i-game"/></svg>Golpe ou não?</a>
+      <a href="#/historico" data-route="historico"><svg><use href="#i-clock"/></svg>Histórico</a>
+      <a href="#/sobre" data-route="sobre"><svg><use href="#i-info"/></svg>Como funciona</a>
+    </nav>
   </div>
 </header>
 
-<div class="panel">
-  <div class="box">
-    <div class="tabs" role="tablist">
-      <button role="tab" id="tab-url" aria-selected="true" aria-controls="form">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
-        Link
-      </button>
-      <button role="tab" id="tab-email" aria-selected="false" aria-controls="form">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <span>Mensagem<span class="long"> ou e-mail</span></span>
-      </button>
+<section data-screen="verificar">
+  <div class="hero">
+    <div class="wrap">
+      <h1>Recebeu um link estranho?</h1>
+      <p class="lead">Cole o link ou a mensagem inteira. O Fisga mostra para onde ele leva de verdade e o que fazer.</p>
     </div>
-    <form id="form" role="tabpanel" aria-labelledby="tab-url">
-      <input type="text" id="campo-url" aria-label="Link" placeholder="Cole o link aqui" autocomplete="off" spellcheck="false">
-      <textarea id="campo-email" aria-label="Mensagem" placeholder="Cole o texto do SMS, WhatsApp ou e-mail" hidden></textarea>
-      <div class="row">
-        <span class="hint">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-          Nada do que você cola fica salvo
-        </span>
-        <button class="go" type="submit" id="go">Verificar</button>
-      </div>
-    </form>
-    <div id="result" aria-live="polite"></div>
   </div>
-</div>
-
-<main>
-  <section>
-    <h2>Teste com um golpe comum</h2>
-    <p>Mensagens no estilo das que chegam por SMS e WhatsApp. Clique em uma.</p>
-    <div class="bubbles">
-      <button class="bubble" data-kind="email" data-text="CORREIOS: sua encomenda foi retida na fiscalizacao. Pague a taxa de R$ 9,90 via Pix hoje para liberar a entrega: http://correios-taxa-pendente.top/rastreio">
-        <small>Correios</small>Sua encomenda foi retida. Pague a taxa de R$ 9,90 via Pix hoje para liberar…
-      </button>
-      <button class="bubble" data-kind="url" data-text="http://nubank-seguranca.xyz/login">
-        <small>Nubank</small>Detectamos um acesso incomum. Confirme seus dados em nubank-seguranca.xyz
-      </button>
-      <button class="bubble" data-kind="url" data-text="https://caixa.gov.br.atualizacao-cadastro.online/token">
-        <small>Caixa</small>Seu FGTS está liberado. Atualize o cadastro em caixa.gov.br.atualizacao-cadastro.online
-      </button>
+  <div class="wrap lift">
+    <form class="card check" id="form">
+      <div class="field">
+        <textarea id="entrada" rows="1" aria-label="Link ou mensagem" placeholder="Cole aqui o link, SMS ou e-mail" spellcheck="false" autocomplete="off"></textarea>
+        <div class="field-bar">
+          <span class="kind" id="kind">Link ou mensagem</span>
+          <button type="button" class="ghost" id="colar"><svg><use href="#i-paste"/></svg>Colar</button>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-main" id="go" type="submit"><svg><use href="#i-search"/></svg>Verificar</button>
+        <span class="note"><svg><use href="#i-lock"/></svg>O que você cola não fica salvo no servidor</span>
+      </div>
+      <p class="slow" id="slow" hidden>O servidor gratuito pode levar até um minuto para acordar na primeira verificação.</p>
+      <p class="err" id="erro" hidden></p>
+    </form>
+    <div class="chips">
+      <span>Testar com:</span>
+      <button class="chip" data-ex="http://nubank-seguranca.xyz/login">Falso Nubank</button>
+      <button class="chip" data-ex="CORREIOS: sua encomenda foi retida na fiscalizacao. Pague a taxa de R$ 9,90 via Pix hoje para liberar a entrega: http://correios-taxa-pendente.top/rastreio">Taxa dos Correios</button>
+      <button class="chip" data-ex="https://caixa.gov.br.atualizacao-cadastro.online/token">FGTS da Caixa</button>
+      <button class="chip" data-ex="https://www.itau.com.br">Itaú oficial</button>
     </div>
-  </section>
 
-  <section>
-    <h2>O que é verificado</h2>
-    <p>Três sinais diferentes entram no resultado.</p>
+    <div class="block">
+      <a class="promo" href="#/quiz">
+        <div>
+          <h2>Você cairia num golpe?</h2>
+          <p>10 mensagens reais de golpe misturadas com mensagens verdadeiras. Descubra em 2 minutos se você sabe separar.</p>
+        </div>
+        <div class="bubble-ico"><svg><use href="#i-game"/></svg></div>
+      </a>
+    </div>
+
+    <div class="block" id="recentes" hidden>
+      <div class="head-row"><h2>Últimas verificações</h2><a class="ghost" href="#/historico">Ver todas</a></div>
+      <ul class="list" id="recentes-lista"></ul>
+    </div>
+  </div>
+</section>
+
+<section data-screen="resultado" hidden>
+  <div class="hero verdict-hero">
+    <div class="wrap">
+      <svg class="gauge" viewBox="0 0 220 124" aria-hidden="true">
+        <path class="track" d="M20 112 A90 90 0 0 1 200 112" fill="none" stroke-width="18" stroke-linecap="round"/>
+        <path class="value" id="arc" d="M20 112 A90 90 0 0 1 200 112" fill="none" stroke-width="18" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283"/>
+      </svg>
+      <div class="gauge-num big" id="num">0<small>%</small></div>
+      <div class="gauge-cap">de risco</div>
+      <h1 class="big" id="titulo"></h1>
+      <p id="conselho"></p>
+    </div>
+  </div>
+  <div class="wrap lift" id="res-body"></div>
+</section>
+
+<section data-screen="quiz" hidden>
+  <div class="hero">
+    <div class="wrap">
+      <h1>Golpe ou não?</h1>
+      <p class="lead">Veja cada mensagem como se tivesse chegado no seu celular e decida.</p>
+    </div>
+  </div>
+  <div class="wrap lift"><div class="card panel" id="quiz-body"></div></div>
+</section>
+
+<section data-screen="historico" hidden>
+  <div class="hero">
+    <div class="wrap">
+      <h1>Histórico</h1>
+      <p class="lead">Suas verificações ficam salvas só neste navegador.</p>
+    </div>
+  </div>
+  <div class="wrap lift"><div class="card panel" id="hist-body"></div></div>
+</section>
+
+<section data-screen="sobre" hidden>
+  <div class="hero">
+    <div class="wrap">
+      <h1>Como o Fisga decide</h1>
+      <p class="lead">Três sinais diferentes são combinados num risco de 0 a 100%.</p>
+    </div>
+  </div>
+  <div class="wrap lift">
     <div class="signals">
-      <div class="signal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <h3>Endereço</h3>
-        <p>Se o domínio imita banco ou órgão do governo, usa terminação suspeita, IP ou encurtador.</p>
-      </div>
-      <div class="signal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-        <h3>Remetente</h3>
-        <p>No e-mail completo, se SPF, DKIM e DMARC batem e se a resposta vai para outro endereço.</p>
-      </div>
-      <div class="signal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg>
-        <h3>Texto</h3>
-        <p>Urgência, cobrança via Pix ou boleto e pedido de senha, avaliados por um modelo de linguagem.</p>
-      </div>
+      <div class="signal"><div class="ico" style="background:var(--blue)"><svg><use href="#i-globe"/></svg></div><h3>Endereço</h3><p>Compara o domínio com mais de 20 marcas brasileiras e procura terminações suspeitas, IP, encurtadores e letras trocadas.</p></div>
+      <div class="signal"><div class="ico" style="background:var(--warn)"><svg><use href="#i-mail"/></svg></div><h3>Remetente</h3><p>No e-mail completo, confere SPF, DKIM e DMARC e se a resposta iria para outro endereço.</p></div>
+      <div class="signal"><div class="ico" style="background:var(--bad)"><svg><use href="#i-text"/></svg></div><h3>Texto</h3><p>Um modelo de linguagem procura urgência, cobrança por Pix ou boleto e pedido de senha.</p></div>
     </div>
-  </section>
+    <div class="block">
+      <h2>Como se proteger</h2>
+      <p>Valem para qualquer mensagem, com ou sem o Fisga.</p>
+      <ul class="tips">
+        <li><svg><use href="#i-check"/></svg>Banco nunca pede senha, token ou código por SMS, WhatsApp ou ligação.</li>
+        <li><svg><use href="#i-check"/></svg>Leia o endereço de trás para frente: o que vem antes do primeiro / depois do .com.br é o que importa.</li>
+        <li><svg><use href="#i-check"/></svg>Recebeu cobrança? Abra o app oficial e procure lá, em vez de usar o link.</li>
+        <li><svg><use href="#i-check"/></svg>Parente pedindo Pix de número novo? Ligue para o número antigo antes de transferir.</li>
+        <li><svg><use href="#i-check"/></svg>Caiu em golpe? Ligue para o banco pelo número do cartão e registre boletim de ocorrência online.</li>
+      </ul>
+    </div>
+    <footer>
+      <p>O resultado é uma estimativa e pode errar.</p>
+      <p><a href="https://github.com/lucasfalves07/Fisga">Código no GitHub</a></p>
+    </footer>
+  </div>
+</section>
 
-  <footer>
-    <p>O resultado é uma estimativa. Na dúvida, abra o app oficial ou digite o endereço do site você mesmo.</p>
-    <p><a href="https://github.com/lucasfalves07/Fisga">Código no GitHub</a></p>
-  </footer>
-</main>
+<nav class="tabbar" aria-label="Principal">
+  <a href="#/verificar" data-route="verificar"><svg><use href="#i-search"/></svg>Verificar</a>
+  <a href="#/quiz" data-route="quiz"><svg><use href="#i-game"/></svg>Quiz</a>
+  <a href="#/historico" data-route="historico"><svg><use href="#i-clock"/></svg>Histórico</a>
+  <a href="#/sobre" data-route="sobre"><svg><use href="#i-info"/></svg>Sobre</a>
+</nav>
+
+<div class="toast" id="toast" role="status"></div>
 
 <script>
-const $ = (s) => document.querySelector(s);
-const tabs = { url: $("#tab-url"), email: $("#tab-email") };
-const campos = { url: $("#campo-url"), email: $("#campo-email") };
-let modo = "url";
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ico = (id, cls = "") => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
+const calmo = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const ICON = {
-  ok: '<path d="M20 6 9 17l-5-5"/>',
-  warn: '<path d="M12 8v5M12 17h.01"/>',
-  bad: '<path d="M18 6 6 18M6 6l12 12"/>',
+const TOM = {
+  ok: {
+    titulo: "Parece seguro",
+    conselho: "Nenhum sinal claro de golpe. Ainda assim, confira o endereço antes de digitar qualquer dado.",
+    fazer: ["Confira se o endereço é exatamente o do site oficial", "Mesmo em site certo, desconfie de pedidos de senha ou token"],
+  },
+  warn: {
+    titulo: "Suspeito",
+    conselho: "Tem sinais de golpe. Não use esse link para nada que envolva dinheiro ou dados.",
+    fazer: ["Não informe senha, CPF ou código", "Abra o app oficial em vez de usar o link", "Na dúvida, ligue para a empresa pelo canal oficial"],
+  },
+  bad: {
+    titulo: "Provável golpe",
+    conselho: "Tudo indica que é golpe. Não clique e não responda.",
+    fazer: ["Não clique no link nem responda a mensagem", "Não faça Pix nem pague boleto", "Se já passou dados, ligue para o banco pelo número do cartão", "Bloqueie o remetente e apague a mensagem"],
+  },
 };
-const svg = (d, w = 3) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 
-const TEXTO = {
-  ok: ["Parece seguro", "Nenhum sinal claro de golpe. Mesmo assim, desconfie de pedidos de senha ou pagamento."],
-  warn: ["Suspeito", "Tem sinais de golpe. Não informe dados nem pague nada por esse link."],
-  bad: ["Provável golpe", "Não clique e não responda. Apague a mensagem."],
+const EXPLICA = [
+  [/imita a marca/, "Golpistas registram endereços com o nome do banco ou da loja para parecer oficial. O site verdadeiro usa outro domínio."],
+  [/TLD de alto risco/, "Terminações como .xyz, .top e .online custam poucos reais e aparecem muito em golpes."],
+  [/Sem HTTPS/, "A conexão não é criptografada. Bancos e lojas sérias sempre usam https."],
+  [/palavra sensível/, "Palavras como login, senha e pix no endereço são comuns em páginas falsas que pedem dados."],
+  [/endereço IP/, "Sites legítimos usam nome, não números. IP no lugar do domínio indica página improvisada."],
+  [/encurtado/, "Encurtadores escondem o destino. Você só descobre para onde vai depois de clicar."],
+  [/internacionais/, "Letras de outros alfabetos que parecem iguais às nossas, como um 'а' cirílico no lugar do 'a'."],
+  [/subdomínios/, "Muitos pedaços antes do domínio servem para esconder o endereço real no meio do texto."],
+  [/hífens/, "Domínios como banco-seguro-acesso são típicos de páginas falsas."],
+  [/muito longa/, "Endereços enormes dificultam ver de quem é o site."],
+  [/'@'/, "O navegador ignora tudo antes do @. É um truque para disfarçar o destino."],
+  [/urgência/i, "Pressa é a principal arma do golpe: faz você agir antes de pensar."],
+  [/pagamento|pix|boleto/i, "Cobrança inesperada por Pix ou boleto é o golpe mais comum no Brasil."],
+  [/dado sensível|senha|token/i, "Bancos nunca pedem senha, token ou código por mensagem."],
+  [/clicar/i, "Mensagens legítimas raramente insistem para você clicar."],
+  [/SPF|DKIM|DMARC/, "Essas checagens confirmam se o e-mail saiu mesmo do domínio que diz ser."],
+  [/Reply-To|Return-Path/, "A resposta iria para outro endereço, diferente de quem parece ter enviado."],
+  [/Nome de exibição/, "O nome que aparece contém um e-mail falso para parecer oficial."],
+  [/Link suspeito/, "A mensagem tem um link com sinais de golpe. Veja a análise dele acima."],
+];
+
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem("fisga-hist") || "[]"); } catch { return []; } },
+  set(v) { try { localStorage.setItem("fisga-hist", JSON.stringify(v.slice(0, 20))); } catch {} },
 };
+let ultimo = null;
 
-function trocar(m) {
-  modo = m;
-  for (const k of ["url", "email"]) {
-    tabs[k].setAttribute("aria-selected", k === m);
-    campos[k].hidden = k !== m;
-  }
-  $("#form").setAttribute("aria-labelledby", tabs[m].id);
-  campos[m].focus();
-}
-tabs.url.onclick = () => trocar("url");
-tabs.email.onclick = () => trocar("email");
+const tomDe = (v) => v === "provável golpe" ? "bad" : v === "suspeito" ? "warn" : "ok";
+const tipo = (v) => /\s/.test(v.trim()) ? "email" : "url";
 
-const tom = (v) => v === "provável golpe" ? "bad" : v === "suspeito" ? "warn" : "ok";
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-function destacar(url, dominio) {
-  if (!dominio) return esc(url);
-  const host = url.replace(/^[a-z]+:\/\//i, "").split(/[/?#]/)[0];
-  const i = url.indexOf(host), j = host.lastIndexOf(dominio);
-  if (i < 0 || j < 0) return esc(url);
-  const a = i + j, b = a + dominio.length;
-  return esc(url.slice(0, a)) + "<mark>" + esc(url.slice(a, b)) + "</mark>" + esc(url.slice(b));
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("show"), 2200);
 }
 
-function render(r) {
-  const t = tom(r.veredito);
-  const [titulo, conselho] = TEXTO[t];
-  const link = r.url ? r : [...(r.detalhes?.urls || [])].sort((a, b) => b.score - a.score)[0];
-  const motivos = r.motivos?.length ? r.motivos : ["Nenhum sinal de golpe encontrado."];
-  const nivel = { ok: 0, warn: 1, bad: 2 }[t];
-  const itemIcon = t === "ok" ? ICON.ok : '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>';
-
-  document.body.dataset.tom = t;
-  $("#result").className = t;
-  $("#result").innerHTML = `
-    <div class="head">
-      <div class="icon">${svg(ICON[t])}</div>
-      <div>
-        <p class="verdict">${titulo}</p>
-        <p class="advice">${conselho}</p>
-      </div>
-    </div>
-    <div class="scale" role="img" aria-label="Nível de risco: ${titulo}, ${Math.round(r.score * 100)}%">
-      ${["s-ok", "s-warn", "s-bad"].map((c, i) => `<div class="${c}${i <= nivel ? " on" : ""}"></div>`).join("")}
-    </div>
-    <div class="scale-labels">
-      ${["Seguro", "Suspeito", "Golpe"].map((l, i) => `<span${i === nivel ? ' class="cur"' : ""}>${l}</span>`).join("")}
-    </div>
-    ${link ? `<div class="dest"><p>Esse link leva para o site</p><div class="url">${destacar(link.url, link.dominio)}</div></div>` : ""}
-    <ul class="reasons">${motivos.map((m) => `<li>${svg(itemIcon, 2.2)}<span>${esc(m)}</span></li>`).join("")}</ul>`;
+function quando(ts) {
+  const s = Math.round((Date.now() - ts) / 1000);
+  if (s < 60) return "agora";
+  if (s < 3600) return `há ${Math.round(s / 60)} min`;
+  if (s < 86400) return `há ${Math.round(s / 3600)} h`;
+  return new Date(ts).toLocaleDateString("pt-BR");
 }
+
+function rota() {
+  let r = location.hash.replace(/^#\/?/, "") || "verificar";
+  if (!["verificar", "resultado", "quiz", "historico", "sobre"].includes(r)) r = "verificar";
+  if (r === "resultado" && !ultimo) r = "verificar";
+  document.body.dataset.screen = r;
+  $$("section[data-screen]").forEach((s) => s.hidden = s.dataset.screen !== r);
+  $$("[data-route]").forEach((a) => a.dataset.route === r ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  if (r === "resultado") mostrarResultado(ultimo); else delete document.body.dataset.tom;
+  if (r === "historico") mostrarHistorico();
+  if (r === "verificar") mostrarRecentes();
+  if (r === "quiz" && !quiz.ordem.length) iniciarQuiz();
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", rota);
+
+const entrada = $("#entrada");
+function ajustar() {
+  entrada.style.height = "auto";
+  entrada.style.height = Math.min(entrada.scrollHeight, 320) + "px";
+  const v = entrada.value.trim(), k = $("#kind");
+  if (!v) { k.textContent = "Link ou mensagem"; k.className = "kind"; }
+  else if (tipo(v) === "url") { k.textContent = "Link detectado"; k.className = "kind link"; }
+  else { k.textContent = "Mensagem detectada"; k.className = "kind msg"; }
+}
+entrada.addEventListener("input", () => { ajustar(); $("#erro").hidden = true; });
+entrada.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  if (e.ctrlKey || e.metaKey || (!e.shiftKey && tipo(entrada.value) === "url")) { e.preventDefault(); verificar(); }
+});
+
+if (navigator.clipboard?.readText) {
+  $("#colar").onclick = async () => {
+    try { entrada.value = (await navigator.clipboard.readText()).trim(); ajustar(); entrada.focus(); }
+    catch { toast("Use Ctrl+V para colar"); entrada.focus(); }
+  };
+} else $("#colar").hidden = true;
+
+$$(".chip").forEach((c) => c.onclick = () => { entrada.value = c.dataset.ex; ajustar(); verificar(); });
+$("#form").onsubmit = (e) => { e.preventDefault(); verificar(); };
 
 async function verificar() {
-  const valor = campos[modo].value.trim();
-  if (!valor) { campos[modo].focus(); return; }
-
+  const valor = entrada.value.trim();
+  if (!valor) { entrada.focus(); return; }
+  const modo = tipo(valor);
   let raw = valor;
   if (modo === "email" && !/^(from|subject|received|return-path|authentication-results|message-id):/im.test(valor)) raw = "Subject: \n\n" + valor;
 
   const btn = $("#go");
-  btn.disabled = true; btn.textContent = "Verificando…";
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Verificando…';
+  $("#erro").hidden = true;
+  const lento = setTimeout(() => $("#slow").hidden = false, 4000);
   try {
     const res = await fetch(modo === "url" ? "/analyze/url" : "/analyze/email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(modo === "url" ? { url: valor } : { raw }),
     });
-    if (!res.ok) throw new Error(res.status);
-    render(await res.json());
+    if (!res.ok) throw new Error();
+    const r = await res.json();
+    ultimo = { ...r, entrada: valor, modo, ts: Date.now() };
+    store.set([ultimo, ...store.get()]);
+    location.hash = "#/resultado";
+    if (document.body.dataset.screen === "resultado") rota();
   } catch {
-    delete document.body.dataset.tom;
-    $("#result").className = "";
-    $("#result").innerHTML = `<p class="err">Não deu para verificar agora. Tente de novo em alguns segundos.</p>`;
+    const e = $("#erro");
+    e.textContent = "Não deu para verificar agora. Confira sua conexão e tente de novo.";
+    e.hidden = false;
   } finally {
-    btn.disabled = false; btn.textContent = "Verificar";
+    clearTimeout(lento);
+    $("#slow").hidden = true;
+    btn.disabled = false;
+    btn.innerHTML = `${ico("search")}Verificar`;
   }
 }
 
-$("#form").onsubmit = (e) => { e.preventDefault(); verificar(); };
-campos.email.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) verificar(); });
-for (const k of ["url", "email"]) campos[k].addEventListener("input", () => {
-  if (!campos[k].value) { delete document.body.dataset.tom; $("#result").innerHTML = ""; }
-});
+function anatomia(link) {
+  const url = link.url, dominio = link.dominio || "";
+  const m = url.match(/^([a-z]+:\/\/)?(.*)$/i);
+  const proto = m[1] || "", resto = m[2];
+  const host = resto.split(/[/?#]/)[0], caminho = resto.slice(host.length);
+  const sub = dominio && host.endsWith(dominio) ? host.slice(0, host.length - dominio.length) : "";
+  const dom = dominio && host.endsWith(dominio) ? dominio : host;
+  const https = proto.toLowerCase() === "https://";
+  const partes = [
+    proto && { t: proto, c: https ? "var(--ok)" : "var(--bad)", n: https ? "Conexão segura" : "Conexão sem criptografia", d: https ? "O cadeado só garante que ninguém espia a conexão. Golpistas também usam https." : "Os dados trafegam abertos. Nenhum banco usa http." },
+    sub && { t: sub, c: "var(--warn)", n: "Subdomínio", d: "Quem registrou o site escreve o que quiser aqui, inclusive o nome de um banco." },
+    { t: dom, c: "var(--blue)", n: "Domínio real", d: "É o que diz de quem é o site. Compare com o endereço oficial que você conhece.", main: true },
+    caminho && { t: caminho, c: "#8a90ad", n: "Caminho", d: "Página dentro do site. Não muda de quem é o site." },
+  ].filter(Boolean);
+  return `
+    <div class="card panel">
+      <h2>Para onde esse link leva</h2>
+      <div class="anatomy">${partes.map((p, i) => `<button class="seg${p.main ? " main" : ""}" style="--c:${p.c}" data-i="${i}">${esc(p.t)}</button>`).join("")}</div>
+      <ul class="legend">${partes.map((p, i) => `<li style="--c:${p.c}" data-i="${i}"><i></i><div><b>${p.n}</b><span>${p.d}</span></div></li>`).join("")}</ul>
+    </div>`;
+}
 
-document.querySelectorAll(".bubble").forEach((b) => b.onclick = () => {
-  trocar(b.dataset.kind);
-  campos[b.dataset.kind].value = b.dataset.text;
-  window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-  verificar();
-});
+function mostrarResultado(r) {
+  const t = tomDe(r.veredito), T = TOM[t], pct = Math.round(r.score * 100);
+  document.body.dataset.tom = t;
+  $("#titulo").textContent = T.titulo;
+  $("#conselho").textContent = T.conselho;
+
+  const arc = $("#arc"), num = $("#num");
+  arc.style.transition = "none"; arc.style.strokeDashoffset = 283;
+  arc.getBoundingClientRect(); arc.style.transition = "";
+  requestAnimationFrame(() => arc.style.strokeDashoffset = 283 * (1 - Math.max(pct, 2) / 100));
+  if (calmo) num.innerHTML = `${pct}<small>%</small>`;
+  else {
+    const ini = performance.now();
+    const passo = (agora) => {
+      const k = Math.min((agora - ini) / 1000, 1), e = 1 - Math.pow(1 - k, 3);
+      num.innerHTML = `${Math.round(pct * e)}<small>%</small>`;
+      if (k < 1) requestAnimationFrame(passo);
+    };
+    requestAnimationFrame(passo);
+  }
+
+  const link = r.url ? r : [...(r.detalhes?.urls || [])].sort((a, b) => b.score - a.score)[0];
+  const motivos = r.motivos?.length ? r.motivos : ["Nenhum sinal de golpe encontrado"];
+  const flag = t === "ok" ? "check" : "alert";
+  const porque = motivos.map((m) => {
+    const exp = EXPLICA.find(([re]) => re.test(m));
+    return exp
+      ? `<details><summary>${ico(flag, "flag")}<span>${esc(m)}</span>${ico("chev", "chev")}</summary><p>${exp[1]}</p></details>`
+      : `<div class="plain">${ico(flag)}<span>${esc(m)}</span></div>`;
+  }).join("");
+
+  $("#res-body").className = `wrap lift tone-${t}`;
+  $("#res-body").innerHTML = `
+    <div class="card panel">
+      <h2>O que fazer agora</h2>
+      <ul class="todo">${T.fazer.map((f) => `<li>${ico(t === "ok" ? "check" : "x")}<span>${f}</span></li>`).join("")}</ul>
+    </div>
+    ${link ? anatomia(link) : ""}
+    <div class="card panel">
+      <h2>Por que esse resultado</h2>
+      <div class="why">${porque}</div>
+    </div>
+    <div class="end-actions">
+      <a class="btn btn-main" href="#/verificar" id="outro">${ico("search")}Verificar outro</a>
+      <button class="btn btn-soft" id="compartilhar">${ico("share")}Avisar alguém</button>
+    </div>
+    <footer><p>O resultado é uma estimativa e pode errar. Na dúvida, use sempre o app oficial.</p></footer>`;
+
+  const marcar = (i) => $$("#res-body [data-i]").forEach((el) => el.classList.toggle("on", el.dataset.i === i));
+  $$("#res-body .seg, #res-body .legend li").forEach((el) => {
+    el.addEventListener("mouseenter", () => marcar(el.dataset.i));
+    el.addEventListener("click", () => marcar(el.dataset.i));
+  });
+  $("#res-body .anatomy")?.addEventListener("mouseleave", () => marcar(null));
+
+  $("#outro").onclick = () => { entrada.value = ""; ajustar(); setTimeout(() => entrada.focus(), 50); };
+  $("#compartilhar").onclick = async () => {
+    const seguro = r.entrada.replace(/(https?:\/\/)?([\w-]+\.)+[a-z]{2,}\S*/gi, (u) => u.replace(/^http/i, "hxxp").replace(/\./g, "[.]"));
+    const texto = `Cuidado: o Fisga marcou isso como "${T.titulo}" (${pct}% de risco).\n\n${seguro}\n\nVerifique links suspeitos em ${location.origin}`;
+    try {
+      if (navigator.share) await navigator.share({ text: texto });
+      else { await navigator.clipboard.writeText(texto); toast("Aviso copiado. Cole no WhatsApp."); }
+    } catch {}
+  };
+}
+
+function linha(h, i) {
+  const t = tomDe(h.veredito);
+  return `<li><button class="row" data-h="${i}"><span class="dot ${t}"></span><span class="what"><b>${esc(h.entrada)}</b><small>${TOM[t].titulo}, ${quando(h.ts)}</small></span><span class="pct ${t}">${Math.round(h.score * 100)}%</span></button></li>`;
+}
+function ligarLinhas(el, lista) {
+  $$("[data-h]", el).forEach((b) => b.onclick = () => { ultimo = lista[+b.dataset.h]; location.hash = "#/resultado"; });
+}
+function mostrarRecentes() {
+  const h = store.get().slice(0, 3);
+  $("#recentes").hidden = !h.length;
+  $("#recentes-lista").innerHTML = h.map(linha).join("");
+  ligarLinhas($("#recentes"), h);
+}
+function mostrarHistorico() {
+  const h = store.get(), el = $("#hist-body");
+  if (!h.length) {
+    el.innerHTML = `<div class="empty">${ico("clock")}<h2>Nenhuma verificação ainda</h2><p>Os links e mensagens que você verificar aparecem aqui.</p><a class="btn btn-main" href="#/verificar">Verificar um link</a></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="head-row"><h2>${h.length} ${h.length === 1 ? "verificação" : "verificações"}</h2><button class="ghost" id="limpar">Limpar histórico</button></div><ul class="list">${h.map(linha).join("")}</ul>`;
+  ligarLinhas(el, h);
+  $("#limpar").onclick = () => { store.set([]); mostrarHistorico(); toast("Histórico apagado"); };
+}
+
+const PERGUNTAS = [
+  { de: "Nubank", ini: "N", cor: "#820ad1", txt: "Detectamos um acesso incomum na sua conta. Confirme seus dados para evitar o bloqueio:", link: "http://nubank-seguranca.xyz/login", golpe: true, exp: "O domínio é nubank-seguranca.xyz. O do Nubank é nubank.com.br. Além disso, banco não pede para confirmar dados por link." },
+  { de: "Receita Federal", ini: "R", cor: "#1351b4", txt: "A declaração do Imposto de Renda pode ser consultada no portal:", link: "https://www.gov.br/receitafederal", golpe: false, exp: "gov.br é o domínio oficial do governo federal, e a mensagem não pede nada nem cria urgência." },
+  { de: "+55 11 9xxxx-xxxx", ini: "?", cor: "#5a6182", txt: "CORREIOS: sua encomenda foi retida. Pague a taxa de R$ 9,90 via Pix hoje para liberar:", link: "http://correios-taxa.top/rastreio", golpe: true, exp: "Os Correios não cobram taxa por SMS com link. O domínio .top não tem nada a ver com correios.com.br." },
+  { de: "Mercado Livre", ini: "M", cor: "#e6b800", txt: "Seu pedido saiu para entrega. Acompanhe em:", link: "https://www.mercadolivre.com.br/minhas-compras", golpe: false, exp: "Domínio oficial, sem pedido de pagamento ou de dados." },
+  { de: "Caixa", ini: "C", cor: "#005ca9", txt: "Seu saque do FGTS está liberado. Atualize o cadastro em até 24h:", link: "https://caixa.gov.br.atualizacao-cadastro.online/token", golpe: true, exp: "Parece gov.br, mas o domínio real é atualizacao-cadastro.online. O que vale é o final do endereço, antes da primeira barra." },
+  { de: "Filho", ini: "F", cor: "#0f9d58", txt: "Oi mãe, troquei de número. Pode me fazer um Pix de R$ 800? É urgente, depois te explico", link: "", golpe: true, exp: "Golpe do parente: número novo, pedido de dinheiro e urgência. Ligue para o número antigo antes de qualquer Pix." },
+  { de: "Banco", ini: "B", cor: "#e5312a", txt: "Seu cartão foi bloqueado por segurança. Desbloqueie agora:", link: "https://bit.ly/3xYz9Kp", golpe: true, exp: "Encurtador esconde o destino real, e banco não manda link para desbloquear cartão." },
+  { de: "Correios", ini: "C", cor: "#f5b800", txt: "Rastreie seu objeto pelo código no site:", link: "https://rastreamento.correios.com.br", golpe: false, exp: "rastreamento é só um subdomínio de correios.com.br, que é o domínio oficial." },
+  { de: "Itaú", ini: "I", cor: "#ec7000", txt: "Seu token expirou. Acesse para reativar:", link: "http://itaau.com/acesso", golpe: true, exp: "itaau.com tem um 'a' a mais. É o truque do erro de digitação para enganar quem lê rápido." },
+  { de: "iFood", ini: "i", cor: "#ea1d2c", txt: "Seu cupom de R$ 15 já está no app. Use no próximo pedido.", link: "", golpe: false, exp: "Não tem link, não pede dado nem pagamento. Você pode conferir direto no app." },
+];
+const quiz = { ordem: [], i: 0, acertos: [] };
+
+function iniciarQuiz() {
+  quiz.ordem = PERGUNTAS.map((_, i) => i).sort(() => Math.random() - .5);
+  quiz.i = 0; quiz.acertos = [];
+  pergunta();
+}
+function barra() {
+  return `<div class="progress">${quiz.ordem.map((_, i) => `<i class="${i < quiz.acertos.length ? (quiz.acertos[i] ? "hit" : "miss") : i === quiz.i ? "cur" : ""}"></i>`).join("")}</div>`;
+}
+function pergunta() {
+  const p = PERGUNTAS[quiz.ordem[quiz.i]], el = $("#quiz-body");
+  const acertos = quiz.acertos.filter(Boolean).length;
+  el.innerHTML = `
+    ${barra()}
+    <div class="qcount"><span>Mensagem ${quiz.i + 1} de ${quiz.ordem.length}</span><span>${acertos} ${acertos === 1 ? "acerto" : "acertos"}</span></div>
+    <div class="phone" id="phone">
+      <div class="sender"><span class="avatar" style="background:${p.cor}">${p.ini}</span><div><b>${esc(p.de)}</b><small>agora</small></div></div>
+      <div class="msg">${esc(p.txt)}${p.link ? ` <span class="lnk">${esc(p.link)}</span>` : ""}</div>
+    </div>
+    <div class="choices">
+      <button class="choice golpe" data-v="1">${ico("x")}É golpe</button>
+      <button class="choice seguro" data-v="0">${ico("check")}Parece seguro</button>
+    </div>
+    <div id="fb"></div>`;
+  $$(".choice", el).forEach((b) => b.onclick = () => responder(b, p));
+}
+function responder(b, p) {
+  const certo = (b.dataset.v === "1") === p.golpe;
+  quiz.acertos.push(certo);
+  $$(".choice").forEach((c) => c.disabled = true);
+  b.classList.add("picked");
+  $("#phone").classList.add(certo ? "right" : "wrong");
+  $(".progress").outerHTML = barra();
+  const ultima = quiz.i === quiz.ordem.length - 1;
+  $("#fb").innerHTML = `
+    <div class="feedback ${certo ? "right" : "wrong"}">
+      <h3>${certo ? "Acertou!" : "Não foi dessa vez."} ${p.golpe ? "É golpe." : "É seguro."}</h3>
+      <p>${p.exp}</p>
+      <button class="btn btn-main" id="prox">${ultima ? "Ver resultado" : "Próxima mensagem"}</button>
+    </div>`;
+  $("#prox").onclick = () => { if (ultima) fimQuiz(); else { quiz.i++; pergunta(); } };
+  $("#prox").focus({ preventScroll: true });
+  $("#fb").scrollIntoView({ behavior: calmo ? "auto" : "smooth", block: "nearest" });
+}
+function fimQuiz() {
+  const n = quiz.acertos.filter(Boolean).length, total = quiz.ordem.length;
+  const msg = n === total ? "Gabaritou. Golpista nenhum passa por você. Que tal mandar para alguém da família testar?"
+    : n >= 8 ? "Muito bem. Você tem o olho treinado, só cuidado com os detalhes do endereço."
+    : n >= 5 ? "Na média. Os golpes mais difíceis são os que copiam o nome do banco no começo do link."
+    : "Esses golpes são feitos para enganar mesmo. Antes de clicar em qualquer link, verifique aqui.";
+  $("#quiz-body").innerHTML = `
+    ${barra()}
+    <div class="score-card">
+      <div class="big">${n} de ${total}</div>
+      <p>${msg}</p>
+      <div class="end-actions">
+        <button class="btn btn-main" id="denovo">Jogar de novo</button>
+        <button class="btn btn-soft" id="desafiar">${ico("share")}Desafiar alguém</button>
+      </div>
+    </div>`;
+  $("#denovo").onclick = iniciarQuiz;
+  $("#desafiar").onclick = async () => {
+    const texto = `Acertei ${n} de ${total} no "Golpe ou não?". Você cairia num golpe? ${location.origin}/#/quiz`;
+    try {
+      if (navigator.share) await navigator.share({ text: texto });
+      else { await navigator.clipboard.writeText(texto); toast("Desafio copiado"); }
+    } catch {}
+  };
+}
+
+ajustar();
+rota();
 </script>
 </body>
 </html>

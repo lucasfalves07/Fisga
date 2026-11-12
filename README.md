@@ -10,6 +10,8 @@ A análise junta três sinais:
 
 O resultado vem com score de 0 a 1, veredito e os motivos em português.
 
+**Online:** https://fisga.onrender.com
+
 ## Rodando
 
 ```bash
