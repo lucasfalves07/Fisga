@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import unicodedata
 
 from dotenv import load_dotenv
 
@@ -25,22 +26,26 @@ ENTREGA = ["encomenda", "objeto", "entrega", "rastreio", "taxad", "fiscaliza", "
 CREDENTIALS = ["senha", "token", "código de verificação", "cpf", "dados do cartão", "atualize seus dados"]
 
 
+def _sem_acento(texto: str) -> str:
+    return unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode().lower()
+
+
 def heuristic(subject: str, body: str) -> dict:
-    text = f"{subject}\n{body}".lower()
+    text = _sem_acento(f"{subject}\n{body}")
     reasons, score = [], 0.0
 
-    hits = [w for w in URGENCY if w in text]
+    hits = [w for w in URGENCY if _sem_acento(w) in text]
     if hits:
         reasons.append(f"Linguagem de urgência ({hits[0]})")
         score += 0.25
-    hits = [w for w in MONEY if w in text]
+    hits = [w for w in MONEY if _sem_acento(w) in text]
     if hits:
         reasons.append(f"Pede pagamento ou menciona {hits[0]}")
         score += 0.25
-    if any(w in text for w in ENTREGA) and any(w in text for w in MONEY):
+    if any(_sem_acento(w) in text for w in ENTREGA) and any(_sem_acento(w) in text for w in MONEY):
         reasons.append("Cobra taxa para liberar ou reagendar entrega")
         score += 0.25
-    hits = [w for w in CREDENTIALS if w in text]
+    hits = [w for w in CREDENTIALS if _sem_acento(w) in text]
     if hits:
         reasons.append(f"Solicita dado sensível ({hits[0]})")
         score += 0.3
@@ -51,27 +56,29 @@ def heuristic(subject: str, body: str) -> dict:
     return {"score": min(score, 1.0), "categoria": "outro" if score else "legitimo", "motivos": reasons, "fonte": "heuristica"}
 
 
+def llm(subject: str, body: str) -> dict:
+    from groq import Groq
+
+    client = Groq(api_key=os.environ["GROQ_API_KEY"])
+    resp = client.chat.completions.create(
+        model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        messages=[{"role": "user", "content": PROMPT.format(subject=subject, body=body[:4000])}],
+        temperature=0,
+        response_format={"type": "json_object"},
+    )
+    data = json.loads(resp.choices[0].message.content)
+    return {
+        "score": max(0.0, min(float(data.get("score", 0)), 1.0)),
+        "categoria": data.get("categoria", "outro"),
+        "motivos": data.get("motivos", [])[:5],
+        "fonte": "llm",
+    }
+
+
 def analyze_text(subject: str, body: str) -> dict:
-    key = os.getenv("GROQ_API_KEY")
-    if not key:
+    if not os.getenv("GROQ_API_KEY"):
         return heuristic(subject, body)
-
     try:
-        from groq import Groq
-
-        client = Groq(api_key=key)
-        resp = client.chat.completions.create(
-            model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
-            messages=[{"role": "user", "content": PROMPT.format(subject=subject, body=body[:4000])}],
-            temperature=0,
-            response_format={"type": "json_object"},
-        )
-        data = json.loads(resp.choices[0].message.content)
-        return {
-            "score": max(0.0, min(float(data.get("score", 0)), 1.0)),
-            "categoria": data.get("categoria", "outro"),
-            "motivos": data.get("motivos", [])[:5],
-            "fonte": "llm",
-        }
+        return llm(subject, body)
     except Exception:
         return heuristic(subject, body)

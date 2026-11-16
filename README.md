@@ -17,6 +17,15 @@ O resultado vem com score de 0 a 1, veredito e os motivos em português.
 
 ## Rodando
 
+Com Docker:
+
+```bash
+docker build -t fisga .
+docker run -p 8000:8000 --env-file .env fisga
+```
+
+Ou direto com Python:
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -87,6 +96,23 @@ Decisões que valem destacar:
 
 Para rodar o notebook: `pip install -r requirements-dev.txt`.
 
+## Mensagens
+
+`data/mensagens.csv` tem 198 mensagens em PT-BR (100 golpes e 98 legítimas) nos formatos de SMS, WhatsApp e e-mail. Os golpes cobrem entrega, falsa central de banco, parente com número novo, falso emprego, prêmio, gov.br, boleto, investimento e roubo de código do WhatsApp. As legítimas incluem casos difíceis, como códigos de verificação reais, Pix recebido, fatura disponível e "mãe, mudei de número" sem pedido de dinheiro. As mensagens foram escritas a partir de golpes documentados, sem dados de pessoas reais.
+
+```bash
+python -m scripts.avaliar_texto
+```
+
+Compara a heurística com o LLM, sozinhos e dentro do Fisga completo (texto + links da mensagem). Sem `GROQ_API_KEY`, avalia só a heurística. As respostas do LLM ficam em cache, e o script respeita o limite de requisições da Groq.
+
+| Abordagem | Precisão | Recall | F1 |
+|---|---|---|---|
+| Heurística (só texto) | 1,00 | 0,15 | 0,26 |
+| Fisga com heurística | 1,00 | 0,54 | 0,70 |
+
+A heurística não erra quando dispara, mas não pega golpes sem palavras-chave: parente pedindo dinheiro, falso emprego e investimento ficam com recall zero. É exatamente o espaço para o LLM.
+
 ## Testes
 
 ```bash
@@ -113,10 +139,12 @@ web/
 scripts/
   coletar_urls.py
   treinar_modelo.py
+  avaliar_texto.py
   gerar_notebook.py
 models/
 notebooks/
 tests/
+Dockerfile
 ```
 
 ## Próximos passos

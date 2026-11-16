@@ -75,4 +75,9 @@ def split_email(raw: str) -> tuple[str, str]:
 
 def extract_urls(text: str) -> list[str]:
     urls = re.findall(r"https?://[^\s<>\"')]+", text)
-    return list(dict.fromkeys(u.rstrip(".,;") for u in urls))
+    resto = re.sub(r"https?://[^\s<>\"')]+", " ", text)
+    for cand in re.findall(r"(?<![@\w.-])(?:[a-z0-9-]+\.)+[a-z]{2,}(?:/[^\s<>\"')]*)?", resto, re.I):
+        ext = _extract(cand.split("/")[0])
+        if ext.suffix and ext.domain and not ext.domain.isdigit():
+            urls.append(cand)
+    return list(dict.fromkeys(u.rstrip(".,;:!?") for u in urls))

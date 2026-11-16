@@ -27,3 +27,13 @@ texto,label,categoria,fonte
 ```
 
 `data/raw/` e `data/processed/` não vão pro git.
+
+`data/mensagens.csv`
+
+```
+texto,label,categoria
+"CORREIOS: Seu objeto ... esta retido ...",1,correios
+"Seu codigo de verificacao Nubank e 482913 ...",0,codigo
+```
+
+Escritas a partir de golpes documentados, sem dados de pessoas reais. Vai para o git.
