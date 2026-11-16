@@ -11,7 +11,7 @@ A análise junta quatro sinais:
 - **Regras de URL**: typosquatting de marcas brasileiras, TLD, IP no lugar de domínio, encurtadores, punycode
 - **Modelo de ML**: Random Forest treinado com 8 mil URLs reais, olhando só o domínio
 - **Cabeçalhos**: SPF, DKIM, DMARC e divergência entre From, Reply-To e Return-Path
-- **Texto**: LLM (Llama via Groq) classifica o tipo de golpe; sem chave configurada, cai numa heurística local
+- **Texto**: LLM (gpt-oss-120b via Groq) classifica o tipo de golpe; sem chave configurada, cai numa heurística local
 
 O resultado vem com score de 0 a 1, veredito e os motivos em português.
 
@@ -106,12 +106,21 @@ python -m scripts.avaliar_texto
 
 Compara a heurística com o LLM, sozinhos e dentro do Fisga completo (texto + links da mensagem). Sem `GROQ_API_KEY`, avalia só a heurística. As respostas do LLM ficam em cache, e o script respeita o limite de requisições da Groq.
 
-| Abordagem | Precisão | Recall | F1 |
-|---|---|---|---|
-| Heurística (só texto) | 1,00 | 0,15 | 0,26 |
-| Fisga com heurística | 1,00 | 0,54 | 0,70 |
+| Abordagem | Precisão | Recall | F1 | AUC |
+|---|---|---|---|---|
+| Heurística (só texto) | 1,00 | 0,15 | 0,26 | 0,70 |
+| Fisga com heurística | 1,00 | 0,54 | 0,70 | 0,86 |
+| LLM (só texto) | 0,92 | 1,00 | 0,96 | 0,98 |
+| Fisga com LLM | 0,92 | 1,00 | 0,96 | 0,99 |
 
-A heurística não erra quando dispara, mas não pega golpes sem palavras-chave: parente pedindo dinheiro, falso emprego e investimento ficam com recall zero. É exatamente o espaço para o LLM.
+A heurística nunca erra quando dispara, mas não pega golpe sem palavra-chave: parente pedindo dinheiro, falso emprego e investimento ficam com recall zero. O LLM (`openai/gpt-oss-120b` via Groq) pegou os 100 golpes, inclusive esses.
+
+O custo são 9 alarmes falsos em 98 mensagens legítimas, todos do mesmo tipo: notificações verdadeiras que falam de código, Pix, boleto ou encomenda sem pedir nada, como "Seu código de verificação do Google é..." ou "Correios: seu objeto foi entregue". O modelo fica desconfiado demais com o assunto, mesmo quando a mensagem não pede ação nenhuma.
+
+Cuidados ao ler esses números:
+
+- São 198 mensagens escritas a partir de golpes conhecidos. Golpes reais costumam ser menos óbvios, então o recall de 100% é otimista.
+- Ajustar o prompt para reduzir os alarmes falsos usando estas mesmas mensagens seria treinar no teste. O certo é separar um conjunto novo antes de mexer no prompt.
 
 ## Testes
 

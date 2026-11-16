@@ -5,7 +5,7 @@ import unicodedata
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 PROMPT = """Você é analista de fraudes de um banco brasileiro. Avalie a mensagem abaixo e diga se é golpe.
 
@@ -61,7 +61,7 @@ def llm(subject: str, body: str) -> dict:
 
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
     resp = client.chat.completions.create(
-        model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        model=os.getenv("GROQ_MODEL", "openai/gpt-oss-120b"),
         messages=[{"role": "user", "content": PROMPT.format(subject=subject, body=body[:4000])}],
         temperature=0,
         response_format={"type": "json_object"},

@@ -19,7 +19,8 @@
 - [x] Score do app combina regras e modelo
 - [x] Notebook de avaliação
 - [x] Script de avaliação da parte de texto (heurística × LLM)
-- [ ] Rodar com a chave da Groq e registrar os números do LLM
+- [x] Avaliação com LLM (gpt-oss-120b): F1 0,96, 9 alarmes falsos em notificações legítimas
+- [ ] Reduzir alarmes falsos do LLM com um conjunto de mensagens separado para validação
 
 ## Produto
 - [x] Site com resultado detalhado, quiz e histórico

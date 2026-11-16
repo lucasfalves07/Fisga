@@ -16,6 +16,20 @@
       "recall": 0.54,
       "f1": 0.701,
       "auc": 0.864
+    },
+    "LLM (só texto)": {
+      "acuracia": 0.955,
+      "precisao": 0.917,
+      "recall": 1.0,
+      "f1": 0.957,
+      "auc": 0.98
+    },
+    "Fisga com LLM": {
+      "acuracia": 0.955,
+      "precisao": 0.917,
+      "recall": 1.0,
+      "f1": 0.957,
+      "auc": 0.99
     }
   },
   "recall_por_categoria": {
@@ -44,6 +58,32 @@
       "parente": 0.0,
       "premio": 0.75,
       "whatsapp": 0.25
+    },
+    "LLM (só texto)": {
+      "banco": 1.0,
+      "boleto": 1.0,
+      "correios": 1.0,
+      "email": 1.0,
+      "emprego": 1.0,
+      "governo": 1.0,
+      "investimento": 1.0,
+      "loja": 1.0,
+      "parente": 1.0,
+      "premio": 1.0,
+      "whatsapp": 1.0
+    },
+    "Fisga com LLM": {
+      "banco": 1.0,
+      "boleto": 1.0,
+      "correios": 1.0,
+      "email": 1.0,
+      "emprego": 1.0,
+      "governo": 1.0,
+      "investimento": 1.0,
+      "loja": 1.0,
+      "parente": 1.0,
+      "premio": 1.0,
+      "whatsapp": 1.0
     }
   },
   "erros": {
@@ -187,6 +227,34 @@
         "Oi, sou eu, sua sobrinha. Perdi a carteira e to sem dinheiro pro uber, me manda 80 no Pix desse numero?"
       ],
       "falsos_positivos": []
+    },
+    "LLM (só texto)": {
+      "falsos_negativos": [],
+      "falsos_positivos": [
+        "G-584120 e o seu codigo de verificacao do Google.",
+        "Mercado Pago: 662810 e seu codigo para confirmar a operacao. Ninguem do Mercado Pago vai pedir esse codigo.",
+        "gov.br: o codigo para autorizar o acesso e 512903. Valido por 5 minutos.",
+        "Correios: seu objeto QB123456789BR foi entregue.",
+        "Correios: seu objeto aguarda retirada na agencia Centro ate o dia 22. Leve um documento com foto.",
+        "Sua encomenda internacional foi liberada pela fiscalizacao e seguiu para entrega.",
+        "Faz um Pix de 40 pro presente da Julia? Chave e meu celular mesmo",
+        "Nubank: voce resgatou R$ 300 da sua caixinha.",
+        "Seu boleto de R$ 230,00 foi pago com sucesso."
+      ]
+    },
+    "Fisga com LLM": {
+      "falsos_negativos": [],
+      "falsos_positivos": [
+        "G-584120 e o seu codigo de verificacao do Google.",
+        "Mercado Pago: 662810 e seu codigo para confirmar a operacao. Ninguem do Mercado Pago vai pedir esse codigo.",
+        "gov.br: o codigo para autorizar o acesso e 512903. Valido por 5 minutos.",
+        "Correios: seu objeto QB123456789BR foi entregue.",
+        "Correios: seu objeto aguarda retirada na agencia Centro ate o dia 22. Leve um documento com foto.",
+        "Sua encomenda internacional foi liberada pela fiscalizacao e seguiu para entrega.",
+        "Faz um Pix de 40 pro presente da Julia? Chave e meu celular mesmo",
+        "Nubank: voce resgatou R$ 300 da sua caixinha.",
+        "Seu boleto de R$ 230,00 foi pago com sucesso."
+      ]
     }
   }
 }

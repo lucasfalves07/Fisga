@@ -13,13 +13,13 @@ from app.llm.analyzer import heuristic, llm
 from app.scoring import combinar_email, score_url
 from scripts.treinar_modelo import metricas
 
-load_dotenv()
+load_dotenv(override=True)
 
 CACHE = Path("data/processed/llm_cache.json")
 
 
 def _chave(texto: str) -> str:
-    modelo = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    modelo = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
     return hashlib.sha1(f"{modelo}|{texto}".encode()).hexdigest()
 
 
@@ -34,6 +34,10 @@ def notas_llm(textos: list[str], pausa: float) -> tuple[list[float | None], int]
                     cache[k] = llm("", t)["score"]
                     break
                 except Exception as e:
+                    if type(e).__name__ in {"AuthenticationError", "PermissionDeniedError"}:
+                        raise SystemExit("A Groq recusou a chave. Confira a GROQ_API_KEY no arquivo .env.")
+                    if type(e).__name__ == "NotFoundError":
+                        raise SystemExit(f"A Groq não encontrou o modelo {os.getenv('GROQ_MODEL')}. Troque o GROQ_MODEL no .env.")
                     espera = 20 * (tentativa + 1) if "429" in str(e) or "rate" in str(e).lower() else 3
                     print(f"  [{i}] erro ({type(e).__name__}), tentando de novo em {espera}s")
                     time.sleep(espera)
