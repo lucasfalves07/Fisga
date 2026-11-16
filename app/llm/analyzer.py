@@ -21,6 +21,7 @@ Mensagem:
 
 URGENCY = ["urgente", "imediatamente", "hoje", "24 horas", "bloqueada", "bloqueio", "suspensa", "última chance"]
 MONEY = ["pix", "boleto", "taxa", "pagamento", "transferência", "chave"]
+ENTREGA = ["encomenda", "objeto", "entrega", "rastreio", "taxad", "fiscaliza", "reagend", "retid"]
 CREDENTIALS = ["senha", "token", "código de verificação", "cpf", "dados do cartão", "atualize seus dados"]
 
 
@@ -35,6 +36,9 @@ def heuristic(subject: str, body: str) -> dict:
     hits = [w for w in MONEY if w in text]
     if hits:
         reasons.append(f"Pede pagamento ou menciona {hits[0]}")
+        score += 0.25
+    if any(w in text for w in ENTREGA) and any(w in text for w in MONEY):
+        reasons.append("Cobra taxa para liberar ou reagendar entrega")
         score += 0.25
     hits = [w for w in CREDENTIALS if w in text]
     if hits:

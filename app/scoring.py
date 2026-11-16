@@ -54,9 +54,12 @@ def score_email(raw: str) -> dict:
 
     url_max = max((u["score"] for u in urls), default=0.0)
     s = max(0.5 * text["score"] + 0.3 * url_max + headers["penalty"], url_max)
+    motivos = text["motivos"] + headers["reasons"]
+    if urls and text["score"] >= 0.5:
+        s += 0.1
+        motivos.append("Pede pagamento ou dados e manda um link para isso")
     s = round(min(s, 1.0), 2)
 
-    motivos = text["motivos"] + headers["reasons"]
     worst = max(urls, key=lambda u: u["score"], default=None)
     if worst and worst["score"] >= 0.4:
         motivos.append(f"Link suspeito: {worst['dominio']}")
