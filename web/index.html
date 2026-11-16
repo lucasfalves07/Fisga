@@ -99,7 +99,9 @@ body[data-screen="quiz"] .nav a:hover, body[data-screen="quiz"] .nav a[aria-curr
 .field textarea::placeholder { color: var(--muted); }
 .field-bar { position: absolute; left: 12px; right: 12px; bottom: 10px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
 .field-bar > * { pointer-events: auto; }
-.tools { display: flex; gap: 2px; }
+.tools { display: flex; gap: 2px; flex: none; }
+.field-bar { gap: 6px; }
+@media (max-width: 420px) { .field-bar .ghost { padding: 6px 5px; font-size: 13px; } .kind { font-size: 12px; padding: 4px 8px; } }
 .drop {
   position: absolute; inset: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 10px;
   background: color-mix(in srgb, var(--blue) 12%, var(--surface)); border: 2px dashed var(--blue); color: var(--blue); font-weight: 700;
@@ -115,10 +117,10 @@ body[data-screen="quiz"] .nav a:hover, body[data-screen="quiz"] .nav a[aria-curr
 .ocr.done b { color: var(--ok-deep); }
 .ocr.fail b { color: var(--bad-deep); }
 .ocr .ghost { align-self: start; padding: 6px; }
-.kind.print { color: var(--ok-deep); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
-.kind { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
-.kind.link { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 35%, transparent); }
-.kind.msg { color: var(--warn-deep); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+.kind.k-print { color: var(--ok-deep); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+.kind { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; line-height: 1.4; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
+.kind.k-link { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 35%, transparent); }
+.kind.k-msg { color: var(--warn-deep); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
 .ghost {
   display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer;
   color: var(--blue); font-weight: 700; font-size: 14px; padding: 6px 8px; border-radius: 8px;
@@ -565,8 +567,8 @@ function ajustar() {
   entrada.style.height = Math.min(entrada.scrollHeight, 320) + "px";
   const v = entrada.value.trim(), k = $("#kind");
   if (!v) { k.textContent = "Link ou mensagem"; k.className = "kind"; }
-  else if (tipo(v) === "url") { k.textContent = "Link detectado"; k.className = "kind link"; }
-  else { k.textContent = "Mensagem detectada"; k.className = "kind msg"; }
+  else if (tipo(v) === "url") { k.textContent = "Link"; k.className = "kind k-link"; }
+  else { k.textContent = "Mensagem"; k.className = "kind k-msg"; }
 }
 entrada.addEventListener("input", () => { ajustar(); $("#erro").hidden = true; });
 
@@ -628,7 +630,7 @@ async function lerPrint(arquivo) {
     if (!texto) throw new Error("vazio");
     entrada.value = texto;
     ajustar();
-    const k = $("#kind"); k.textContent = "Texto do print"; k.className = "kind print";
+    const k = $("#kind"); k.textContent = "Texto do print"; k.className = "kind k-print";
     box.classList.add("done");
     $("#ocr-titulo").textContent = "Print lido";
     $("#ocr-msg").textContent = "Confira o texto acima, principalmente os links, e corrija se precisar.";
