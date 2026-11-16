@@ -1,0 +1,152 @@
+{
+  "tamanho": {
+    "treino": 6063,
+    "teste": 1947,
+    "dominios_teste": 1583
+  },
+  "limiar": 0.4,
+  "teste": {
+    "Só regras": {
+      "acuracia": 0.586,
+      "precisao": 0.958,
+      "recall": 0.166,
+      "f1": 0.283,
+      "auc": 0.826
+    },
+    "Random Forest": {
+      "acuracia": 0.759,
+      "precisao": 0.746,
+      "recall": 0.773,
+      "f1": 0.76,
+      "auc": 0.85
+    },
+    "Regressão logística": {
+      "acuracia": 0.756,
+      "precisao": 0.743,
+      "recall": 0.77,
+      "f1": 0.757,
+      "auc": 0.854
+    },
+    "Regras + Random Forest": {
+      "acuracia": 0.772,
+      "precisao": 0.848,
+      "recall": 0.654,
+      "f1": 0.739,
+      "auc": 0.864
+    }
+  },
+  "peso_regras": 0.3,
+  "curva_peso_validacao": {
+    "0.0": 0.778,
+    "0.1": 0.775,
+    "0.2": 0.772,
+    "0.3": 0.766,
+    "0.4": 0.73,
+    "0.5": 0.661,
+    "0.6": 0.507,
+    "0.7": 0.377,
+    "0.8": 0.303,
+    "0.9": 0.292,
+    "1.0": 0.287
+  },
+  "curva_peso_teste": {
+    "0.0": {
+      "acuracia": 0.759,
+      "precisao": 0.746,
+      "recall": 0.773,
+      "f1": 0.76,
+      "auc": 0.85
+    },
+    "0.1": {
+      "acuracia": 0.775,
+      "precisao": 0.788,
+      "recall": 0.741,
+      "f1": 0.764,
+      "auc": 0.855
+    },
+    "0.2": {
+      "acuracia": 0.771,
+      "precisao": 0.807,
+      "recall": 0.704,
+      "f1": 0.752,
+      "auc": 0.859
+    },
+    "0.3": {
+      "acuracia": 0.772,
+      "precisao": 0.848,
+      "recall": 0.654,
+      "f1": 0.739,
+      "auc": 0.864
+    },
+    "0.4": {
+      "acuracia": 0.764,
+      "precisao": 0.912,
+      "recall": 0.576,
+      "f1": 0.706,
+      "auc": 0.87
+    },
+    "0.5": {
+      "acuracia": 0.728,
+      "precisao": 0.969,
+      "recall": 0.461,
+      "f1": 0.625,
+      "auc": 0.878
+    },
+    "0.6": {
+      "acuracia": 0.67,
+      "precisao": 0.979,
+      "recall": 0.337,
+      "f1": 0.502,
+      "auc": 0.887
+    },
+    "0.7": {
+      "acuracia": 0.622,
+      "precisao": 0.97,
+      "recall": 0.239,
+      "f1": 0.384,
+      "auc": 0.899
+    },
+    "0.8": {
+      "acuracia": 0.596,
+      "precisao": 0.962,
+      "recall": 0.186,
+      "f1": 0.311,
+      "auc": 0.911
+    },
+    "0.9": {
+      "acuracia": 0.587,
+      "precisao": 0.958,
+      "recall": 0.167,
+      "f1": 0.284,
+      "auc": 0.919
+    },
+    "1.0": {
+      "acuracia": 0.586,
+      "precisao": 0.958,
+      "recall": 0.166,
+      "f1": 0.283,
+      "auc": 0.826
+    }
+  },
+  "importancia": {
+    "host_len": 0.2494,
+    "subdominios": 0.2084,
+    "maior_rotulo": 0.107,
+    "entropia": 0.0937,
+    "dominio_len": 0.0883,
+    "marca_imitada": 0.0598,
+    "pontos": 0.0463,
+    "prop_vogais": 0.0445,
+    "maior_seq_consoantes": 0.0241,
+    "tld_br": 0.0221,
+    "hifens": 0.0132,
+    "digitos": 0.0118,
+    "prop_digitos": 0.0104,
+    "palavras_sensiveis_host": 0.0097,
+    "tld_risco": 0.006,
+    "tld_gov": 0.005,
+    "is_ip": 0.0004,
+    "punycode": 0.0,
+    "encurtador": 0.0
+  }
+}

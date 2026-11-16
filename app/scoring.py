@@ -1,6 +1,9 @@
 from app.features.header_checks import check_headers, extract_urls, split_email
 from app.features.url_features import analyze_url
 from app.llm.analyzer import analyze_text
+from app.model import prob_golpe
+
+PESO_REGRAS = 0.3
 
 WEIGHTS = {
     "brand": 0.45,
@@ -25,10 +28,7 @@ def verdict(score: float) -> str:
     return "provavelmente seguro"
 
 
-def score_url(url: str) -> dict:
-    rep = analyze_url(url)
-    f = rep.features
-
+def regras(f: dict) -> float:
     s = 0.0
     s += WEIGHTS["brand"] if f["brand"] else 0
     s += WEIGHTS["is_ip"] if f["is_ip"] else 0
@@ -41,9 +41,33 @@ def score_url(url: str) -> dict:
     s += WEIGHTS["hyphens"] if f["hyphens"] >= 2 else 0
     s += WEIGHTS["long"] if f["length"] > 90 else 0
     s += WEIGHTS["sensitive"] * min(len(f["sensitive_words"]), 2)
+    return min(s, 1.0)
 
-    s = round(min(s, 1.0), 2)
-    return {"url": rep.url, "dominio": rep.domain, "score": s, "veredito": verdict(s), "motivos": rep.reasons}
+
+def combinar(s_regras: float, p_modelo: float | None) -> float:
+    if p_modelo is None:
+        return s_regras
+    return PESO_REGRAS * s_regras + (1 - PESO_REGRAS) * p_modelo
+
+
+def score_url(url: str) -> dict:
+    rep = analyze_url(url)
+    s_regras = regras(rep.features)
+    p = prob_golpe(url)
+    s = round(min(combinar(s_regras, p), 1.0), 2)
+
+    motivos = list(rep.reasons)
+    if p is not None and p >= 0.5:
+        motivos.append(f"Modelo treinado com URLs reais estima {round(p * 100)}% de chance de golpe pelo domínio")
+
+    return {
+        "url": rep.url,
+        "dominio": rep.domain,
+        "score": s,
+        "veredito": verdict(s),
+        "motivos": motivos,
+        "componentes": {"regras": round(s_regras, 2), "modelo": None if p is None else round(p, 2)},
+    }
 
 
 def score_email(raw: str) -> dict:

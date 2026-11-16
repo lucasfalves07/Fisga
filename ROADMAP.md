@@ -5,25 +5,27 @@
 - [x] Features de URL e typosquatting de marcas BR
 - [x] SPF / DKIM / DMARC
 - [x] Classificação de texto com LLM e fallback heurístico
-- [x] Score por regras
+- [x] Testes de golpes de entrega (Correios, Loggi, Jadlog, Shopee, taxação)
 
 ## Dataset
-- [ ] URLs maliciosas (OpenPhish, Phishing.Database, PhishTank) com alvo BR
-- [ ] URLs legítimas (Tranco, domínios .br)
+- [x] URLs maliciosas (OpenPhish, Phishing.Database, PhishTank) com alvo BR
+- [x] URLs legítimas (Tranco, domínios .br)
 - [ ] 200 a 500 mensagens de golpe em PT-BR
-- [ ] Documentar em `data/README.md`
+- [ ] Coletar por algumas semanas e testar em golpes mais novos que os do treino
 
 ## Modelo
-- [ ] Random Forest / XGBoost para URL
-- [ ] Comparar regras, ML, LLM e combinado (precisão, recall, F1)
-- [ ] Trocar os pesos fixos do `scoring.py` pelo modelo
-- [ ] Notebook de avaliação
+- [x] Random Forest com características do domínio
+- [x] Comparação entre regras, ML e combinado (precisão, recall, F1, AUC)
+- [x] Score do app combina regras e modelo
+- [x] Notebook de avaliação
+- [ ] Avaliar a parte de texto (heurística × LLM) com o dataset de mensagens
 
 ## Produto
+- [x] Site com resultado detalhado, quiz e histórico
+- [x] Deploy no Render
+- [x] Testes no GitHub Actions
+- [ ] Dockerfile
 - [ ] Extensão Chrome
-- [ ] Dashboard em Streamlit
-- [ ] Docker e docker-compose
-- [ ] Deploy (Render ou Railway)
 - [ ] Vídeo de demo
 
 ## Depois

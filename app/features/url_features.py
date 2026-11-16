@@ -1,4 +1,5 @@
 import ipaddress
+import math
 import re
 import unicodedata
 from dataclasses import dataclass, field
@@ -112,3 +113,63 @@ def analyze_url(url: str) -> UrlReport:
         r.append(f"URL contém palavra sensível: '{w}'")
 
     return UrlReport(url=url, domain=registered, features=f, reasons=r)
+
+
+HOST_FEATURES = [
+    "host_len", "dominio_len", "subdominios", "pontos", "hifens", "digitos", "prop_digitos",
+    "entropia", "prop_vogais", "maior_seq_consoantes", "maior_rotulo", "is_ip", "punycode",
+    "tld_risco", "tld_br", "tld_gov", "encurtador", "marca_imitada", "palavras_sensiveis_host",
+]
+
+
+def _entropy(text: str) -> float:
+    if not text:
+        return 0.0
+    counts = [text.count(c) for c in set(text)]
+    return -sum(n / len(text) * math.log2(n / len(text)) for n in counts)
+
+
+def host_features(url: str) -> dict:
+    if not re.match(r"^[a-z]+://", url, re.I):
+        url = "http://" + url
+    host = (urlparse(url).hostname or "").lower()
+    if host.startswith("www."):
+        host = host[4:]
+    ext = _extract(host)
+    registered = ".".join(p for p in [ext.domain, ext.suffix] if p)
+    label = ext.domain
+    letras = [c for c in label if c.isalpha()]
+    consoantes = re.findall(r"[bcdfghjklmnpqrstvwxyz]+", label)
+
+    return {
+        "host_len": len(host),
+        "dominio_len": len(label),
+        "subdominios": len([s for s in ext.subdomain.split(".") if s]),
+        "pontos": host.count("."),
+        "hifens": host.count("-"),
+        "digitos": sum(c.isdigit() for c in host),
+        "prop_digitos": sum(c.isdigit() for c in host) / max(len(host), 1),
+        "entropia": _entropy(label),
+        "prop_vogais": sum(c in "aeiou" for c in letras) / max(len(letras), 1),
+        "maior_seq_consoantes": max((len(c) for c in consoantes), default=0),
+        "maior_rotulo": max((len(p) for p in host.split(".")), default=0),
+        "is_ip": int(_is_ip(host)),
+        "punycode": int("xn--" in host),
+        "tld_risco": int(ext.suffix.split(".")[-1] in RISKY_TLDS),
+        "tld_br": int(ext.suffix.endswith("br")),
+        "tld_gov": int(ext.suffix in {"gov.br", "gov"}),
+        "encurtador": int(registered in SHORTENERS),
+        "marca_imitada": int(_brand_impersonated(host, registered) is not None),
+        "palavras_sensiveis_host": sum(w in host for w in SENSITIVE_WORDS),
+    }
+
+
+OFFICIAL = {d for dominios in BRANDS.values() for d in dominios}
+
+
+def is_official(url: str) -> bool:
+    if not re.match(r"^[a-z]+://", url, re.I):
+        url = "http://" + url
+    ext = _extract((urlparse(url).hostname or "").lower())
+    registered = ".".join(p for p in [ext.domain, ext.suffix] if p)
+    return registered in OFFICIAL or ext.suffix == "gov.br"
