@@ -28,6 +28,7 @@
 - [x] Testes no GitHub Actions
 - [x] Dockerfile
 - [x] Links sem http:// em SMS também são analisados
+- [x] Leitura de prints com OCR no navegador (Tesseract.js)
 - [ ] Extensão Chrome
 - [ ] Vídeo de demo
 

@@ -15,6 +15,8 @@ A análise junta quatro sinais:
 
 O resultado vem com score de 0 a 1, veredito e os motivos em português.
 
+No site também dá para mandar o **print** da conversa (botão, Ctrl+V ou arrastar). O texto é lido no próprio navegador com Tesseract.js, sem enviar a imagem para servidor nenhum, e a pessoa confere o texto antes de verificar.
+
 ## Rodando
 
 Com Docker:

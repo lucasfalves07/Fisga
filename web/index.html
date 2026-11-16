@@ -99,6 +99,23 @@ body[data-screen="quiz"] .nav a:hover, body[data-screen="quiz"] .nav a[aria-curr
 .field textarea::placeholder { color: var(--muted); }
 .field-bar { position: absolute; left: 12px; right: 12px; bottom: 10px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
 .field-bar > * { pointer-events: auto; }
+.tools { display: flex; gap: 2px; }
+.drop {
+  position: absolute; inset: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: color-mix(in srgb, var(--blue) 12%, var(--surface)); border: 2px dashed var(--blue); color: var(--blue); font-weight: 700;
+}
+.drop svg { width: 24px; height: 24px; }
+.ocr { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; margin-top: 12px; padding: 12px; border-radius: 14px; background: var(--surface-2); }
+.ocr img { width: 64px; height: 64px; object-fit: cover; object-position: top; border-radius: 10px; background: var(--line); }
+.ocr b { display: block; font-size: 15px; }
+.ocr p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.ocr-bar { height: 6px; border-radius: 99px; background: var(--line); margin-top: 8px; overflow: hidden; }
+.ocr-bar span { display: block; height: 100%; width: 0; background: var(--blue); border-radius: inherit; transition: width .2s; }
+.ocr.done .ocr-bar { display: none; }
+.ocr.done b { color: var(--ok-deep); }
+.ocr.fail b { color: var(--bad-deep); }
+.ocr .ghost { align-self: start; padding: 6px; }
+.kind.print { color: var(--ok-deep); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
 .kind { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
 .kind.link { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 35%, transparent); }
 .kind.msg { color: var(--warn-deep); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
@@ -292,6 +309,7 @@ footer a { color: var(--blue); font-weight: 700; }
   <symbol id="i-game" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M10 8.5a2 2 0 1 1 2.6 1.9c-.4.2-.6.5-.6.9V12M12 14.5h.01"/></g></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></g></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/></g></symbol>
   <symbol id="i-paste" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/></g></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></g></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -321,17 +339,31 @@ footer a { color: var(--blue); font-weight: 700; }
   <div class="hero">
     <div class="wrap">
       <h1>Recebeu um link estranho?</h1>
-      <p class="lead">Cole o link ou a mensagem inteira. O Fisga mostra para onde ele leva de verdade e o que fazer.</p>
+      <p class="lead">Cole o link, a mensagem inteira ou mande o print da conversa. O Fisga mostra para onde o link leva de verdade e o que fazer.</p>
     </div>
   </div>
   <div class="wrap lift">
     <form class="card check" id="form">
       <div class="field">
-        <textarea id="entrada" rows="1" aria-label="Link ou mensagem" placeholder="Cole aqui o link, SMS ou e-mail" spellcheck="false" autocomplete="off"></textarea>
+        <textarea id="entrada" rows="1" aria-label="Link ou mensagem" placeholder="Cole aqui o link, SMS, e-mail ou um print" spellcheck="false" autocomplete="off"></textarea>
         <div class="field-bar">
           <span class="kind" id="kind">Link ou mensagem</span>
-          <button type="button" class="ghost" id="colar"><svg><use href="#i-paste"/></svg>Colar</button>
+          <span class="tools">
+            <button type="button" class="ghost" id="print"><svg><use href="#i-image"/></svg>Print</button>
+            <button type="button" class="ghost" id="colar"><svg><use href="#i-paste"/></svg>Colar</button>
+          </span>
         </div>
+        <div class="drop" id="drop" hidden><svg><use href="#i-image"/></svg>Solte o print aqui</div>
+      </div>
+      <input type="file" id="arquivo" accept="image/*" hidden>
+      <div class="ocr" id="ocr" hidden>
+        <img id="ocr-img" alt="Print enviado">
+        <div class="ocr-info">
+          <b id="ocr-titulo">Lendo o print…</b>
+          <div class="ocr-bar"><span id="ocr-prog"></span></div>
+          <p id="ocr-msg">A imagem é lida aqui no seu aparelho e não é enviada para nenhum servidor.</p>
+        </div>
+        <button type="button" class="ghost" id="ocr-fechar" aria-label="Remover print"><svg><use href="#i-x"/></svg></button>
       </div>
       <div class="actions">
         <button class="btn btn-main" id="go" type="submit"><svg><use href="#i-search"/></svg>Verificar</button>
@@ -537,6 +569,102 @@ function ajustar() {
   else { k.textContent = "Mensagem detectada"; k.className = "kind msg"; }
 }
 entrada.addEventListener("input", () => { ajustar(); $("#erro").hidden = true; });
+
+const TESSERACT = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+let ocrWorker = null;
+
+function carregarScript(src) {
+  return new Promise((ok, erro) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = ok; s.onerror = erro;
+    document.head.appendChild(s);
+  });
+}
+
+async function obterWorker(progresso) {
+  if (!window.Tesseract) await carregarScript(TESSERACT);
+  if (!ocrWorker) {
+    ocrWorker = await Tesseract.createWorker("por", 1, {
+      workerPath: "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js",
+      corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1",
+      langPath: "https://cdn.jsdelivr.net/npm/@tesseract.js-data/por@1.0.0/4.0.0_best_int",
+      logger: (m) => progresso(m),
+    });
+  }
+  ocrWorker.progresso = progresso;
+  return ocrWorker;
+}
+
+function limparTexto(texto) {
+  return texto
+    .split("\n")
+    .map((l) => l.replace(/\s+/g, " ").trim())
+    .filter((l) => l && !/^(\d{1,2}[:h]\d{2}( ?[ap]m)?|[✓✔ ]+|\d{1,2}[:h]\d{2} ?[✓✔]+)$/i.test(l))
+    .join("\n")
+    .replace(/([-./])\n(?=[a-z0-9])/gi, "$1")
+    .replace(/\n(?=\.[a-z]{2,})/gi, "")
+    .replace(/(\w)\s?\.\s(com|br|net|org|top|xyz|online|site|shop|info|app)\b/gi, "$1.$2")
+    .replace(/\n/g, " ")
+    .trim();
+}
+
+async function lerPrint(arquivo) {
+  if (!arquivo || !arquivo.type.startsWith("image/")) { toast("Escolha uma imagem"); return; }
+  const box = $("#ocr"), prog = $("#ocr-prog");
+  box.hidden = false; box.className = "ocr";
+  $("#ocr-img").src = URL.createObjectURL(arquivo);
+  $("#ocr-titulo").textContent = "Lendo o print…";
+  $("#ocr-msg").textContent = "A imagem é lida aqui no seu aparelho e não é enviada para nenhum servidor.";
+  prog.style.width = "4%";
+  $("#go").disabled = true;
+  try {
+    const w = await obterWorker((m) => {
+      if (m.status === "recognizing text") prog.style.width = Math.max(10, Math.round(m.progress * 100)) + "%";
+      else if (m.status && m.status.includes("load")) $("#ocr-titulo").textContent = "Preparando a leitura…";
+    });
+    $("#ocr-titulo").textContent = "Lendo o print…";
+    const { data } = await w.recognize(arquivo);
+    const texto = limparTexto(data.text || "");
+    if (!texto) throw new Error("vazio");
+    entrada.value = texto;
+    ajustar();
+    const k = $("#kind"); k.textContent = "Texto do print"; k.className = "kind print";
+    box.classList.add("done");
+    $("#ocr-titulo").textContent = "Print lido";
+    $("#ocr-msg").textContent = "Confira o texto acima, principalmente os links, e corrija se precisar.";
+    entrada.focus();
+  } catch {
+    box.classList.add("fail");
+    $("#ocr-titulo").textContent = "Não deu para ler esse print";
+    $("#ocr-msg").textContent = "Tente uma imagem mais nítida ou copie o texto da mensagem.";
+  } finally {
+    $("#go").disabled = false;
+  }
+}
+
+function fecharPrint() {
+  $("#ocr").hidden = true;
+  $("#arquivo").value = "";
+}
+
+$("#print").onclick = () => $("#arquivo").click();
+$("#arquivo").onchange = (e) => lerPrint(e.target.files[0]);
+$("#ocr-fechar").onclick = fecharPrint;
+
+entrada.addEventListener("paste", (e) => {
+  const img = [...(e.clipboardData?.items || [])].find((i) => i.type.startsWith("image/"));
+  if (img) { e.preventDefault(); lerPrint(img.getAsFile()); }
+});
+
+const campo = $(".field");
+let arrastando = 0;
+campo.addEventListener("dragenter", (e) => { if ([...e.dataTransfer.types].includes("Files")) { arrastando++; $("#drop").hidden = false; } });
+campo.addEventListener("dragleave", () => { if (--arrastando <= 0) { arrastando = 0; $("#drop").hidden = true; } });
+campo.addEventListener("dragover", (e) => e.preventDefault());
+campo.addEventListener("drop", (e) => {
+  e.preventDefault(); arrastando = 0; $("#drop").hidden = true;
+  lerPrint(e.dataTransfer.files[0]);
+});
 entrada.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
   if (e.ctrlKey || e.metaKey || (!e.shiftKey && tipo(entrada.value) === "url")) { e.preventDefault(); verificar(); }
@@ -665,7 +793,7 @@ function mostrarResultado(r) {
   });
   $("#res-body .anatomy")?.addEventListener("mouseleave", () => marcar(null));
 
-  $("#outro").onclick = () => { entrada.value = ""; ajustar(); setTimeout(() => entrada.focus(), 50); };
+  $("#outro").onclick = () => { entrada.value = ""; ajustar(); fecharPrint(); setTimeout(() => entrada.focus(), 50); };
   $("#compartilhar").onclick = async () => {
     const seguro = r.entrada.replace(/(https?:\/\/)?([\w-]+\.)+[a-z]{2,}\S*/gi, (u) => u.replace(/^http/i, "hxxp").replace(/\./g, "[.]"));
     const texto = `Cuidado: o Fisga marcou isso como "${T.titulo}" (${pct}% de risco).\n\n${seguro}\n\nVerifique links suspeitos em ${location.origin}`;
