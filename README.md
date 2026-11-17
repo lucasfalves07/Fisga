@@ -111,7 +111,7 @@ Compara a heurística com o LLM, sozinhos e dentro do Fisga completo (texto + li
 | Abordagem | Precisão | Recall | F1 | AUC |
 |---|---|---|---|---|
 | Heurística (só texto) | 1,00 | 0,15 | 0,26 | 0,70 |
-| Fisga com heurística | 1,00 | 0,54 | 0,70 | 0,86 |
+| Fisga com heurística | 1,00 | 0,58 | 0,73 | 0,86 |
 | LLM (só texto) | 0,92 | 1,00 | 0,96 | 0,98 |
 | Fisga com LLM | 0,92 | 1,00 | 0,96 | 0,99 |
 

@@ -4,6 +4,7 @@ from app.llm.analyzer import analyze_text
 from app.model import prob_golpe
 
 PESO_REGRAS = 0.3
+PESO_TEXTO_SOZINHO = 0.9
 
 WEIGHTS = {
     "brand": 0.45,
@@ -71,7 +72,7 @@ def score_url(url: str) -> dict:
 
 
 def combinar_email(texto: float, url_max: float, penalidade: float = 0.0, tem_links: bool = False) -> tuple[float, bool]:
-    s = max(0.5 * texto + 0.3 * url_max + penalidade, url_max)
+    s = max(0.5 * texto + 0.3 * url_max + penalidade, url_max, PESO_TEXTO_SOZINHO * texto)
     link_com_pedido = tem_links and texto >= 0.5
     if link_com_pedido:
         s += 0.1

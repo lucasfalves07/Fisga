@@ -11,11 +11,11 @@
       "auc": 0.701
     },
     "Fisga com heurística": {
-      "acuracia": 0.768,
+      "acuracia": 0.788,
       "precisao": 1.0,
-      "recall": 0.54,
-      "f1": 0.701,
-      "auc": 0.864
+      "recall": 0.58,
+      "f1": 0.734,
+      "auc": 0.863
     },
     "LLM (só texto)": {
       "acuracia": 0.955,
@@ -49,13 +49,13 @@
     "Fisga com heurística": {
       "banco": 0.56,
       "boleto": 0.75,
-      "correios": 0.8,
-      "email": 0.38,
+      "correios": 0.9,
+      "email": 0.62,
       "emprego": 0.0,
       "governo": 0.93,
       "investimento": 0.0,
       "loja": 0.88,
-      "parente": 0.0,
+      "parente": 0.11,
       "premio": 0.75,
       "whatsapp": 0.25
     },
@@ -180,7 +180,6 @@
     "Fisga com heurística": {
       "falsos_negativos": [
         "Ultimo aviso: o pacote em seu nome sera devolvido ao remetente hoje. Libere em https://bit.ly/3Kq8xLp",
-        "Aviso Correios: objeto retido. Codigo de rastreio NL294817BR. Taxa de liberacao R$ 9,90. Pagamento somente via Pix chave 51.893.221/0001-04",
         "NUBANK: Compra de R$ 2.849,00 aprovada no seu cartao final 4471 em MAGAZINE ONLINE. Nao reconhece? Ligue 0800 591 3381",
         "Banco do Brasil: o seu dispositivo de seguranca precisa ser sincronizado. Acesse bb-sincronizar.com e informe a senha de 8 digitos",
         "Ola, aqui e da central de seguranca do Nubank. Identificamos uma transacao suspeita. Para cancelar, me passe o codigo que chegou por SMS",
@@ -188,7 +187,6 @@
         "Alerta de seguranca: compra internacional de USD 899,00 no seu cartao. Para contestar responda SIM e aguarde a ligacao da central",
         "Itau Personnalite: seu gerente informa que o cartao foi clonado. Um motoboy ira buscar o cartao na sua casa hoje. Confirme o endereco",
         "Oi mae, troquei de numero, salva esse. Depois te explico, to sem acesso ao banco, consegue fazer um Pix pra mim?",
-        "Pai, sou eu. Meu celular caiu na agua, esse e o numero novo. Preciso pagar um boleto urgente hoje, te devolvo amanha",
         "Oi tia! E o Lucas, mudei de numero. Ta podendo me ajudar com 600 reais? Vou passar a chave Pix de um amigo",
         "Vo, to com problema no app do banco. Faz uma transferencia de 1.500 pra essa conta que amanha eu te pago, por favor nao conta pra minha mae",
         "Amiga, e a Carol, numero novo. Me empresta 300 pra pagar uma conta? O Pix e no nome do meu namorado",
@@ -216,8 +214,6 @@
         "Emprestimo aprovado de R$ 10.000 mesmo para negativados. Para liberar, pague a taxa de cadastro de R$ 150",
         "Consorcio contemplado a venda, carta de credito de R$ 80 mil. Apenas transferencia da taxa de R$ 3.500 para reservar",
         "Vendo PS5 lacrado por R$ 1.500, so Pix adiantado, entrego em 2 dias",
-        "Prezado usuario, sua caixa de e-mail atingiu o limite de armazenamento. Clique aqui para aumentar a cota e informe sua senha",
-        "Microsoft 365: sua senha expira hoje. Mantenha a senha atual acessando o link abaixo",
         "Voce recebeu um documento compartilhado via DocuSign. Faca login com seu e-mail corporativo para visualizar",
         "Departamento financeiro: segue nota fiscal em anexo referente ao pagamento pendente. Abra o arquivo NF_8812.zip",
         "PayPal: sua conta esta limitada. Para remover a limitacao, confirme os dados do cartao cadastrado",

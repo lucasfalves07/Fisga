@@ -37,3 +37,11 @@ def test_avaliacao_com_llm_falso(tmp_path, monkeypatch):
     res = avaliar_texto.avaliar(amostra, usar_llm=True, pausa=0)
     assert res["teste"]["LLM (só texto)"]["f1"] == 1.0
     assert (tmp_path / "cache.json").exists()
+
+
+def test_texto_forte_sem_link_vira_provavel_golpe():
+    from app.scoring import combinar_email, verdict
+
+    s, _ = combinar_email(0.95, 0.0, 0.0, False)
+    assert verdict(s) == "provável golpe"
+    assert verdict(combinar_email(0.3, 0.0, 0.0, False)[0]) == "provavelmente seguro"
